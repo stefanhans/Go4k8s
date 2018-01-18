@@ -1,5 +1,4 @@
-Build and run Go executable
+Build and run Go executables
 
-    go build -o ./create-deployment-from-scratch .
-    
-    ./create-deployment-from-scratch
+    go build -o ./deploy_helloworld deploy_helloworld.go    
+    ./deploy_helloworld

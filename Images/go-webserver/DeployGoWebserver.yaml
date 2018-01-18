@@ -1,0 +1,36 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: go-webserver-deployment
+  labels:
+    app: go-webserver
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: go-webserver
+  template:
+    metadata:
+      labels:
+        app: go-webserver
+    spec:
+      containers:
+      - name: go-webserver
+        image: stefanhans/go-webserver:latest
+        ports:
+        - containerPort: 8080
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: go-webserver-service
+  labels:
+    app: go-webserver
+spec:
+  selector:
+    app: go-webserver
+  ports:
+  - protocol: TCP
+    port: 8080
+    #targetPort: 80
+  type: LoadBalancer
