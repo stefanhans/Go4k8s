@@ -71,7 +71,7 @@ func main() {
 					Containers: []apiv1.Container{
 						{
 							Name:  "web",
-							Image: "stefanhans/dockertest-go",
+							Image: "nginx:1.12",
 							Ports: []apiv1.ContainerPort{
 								{
 									Name:          "http",

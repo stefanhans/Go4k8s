@@ -1,9 +1,7 @@
 FROM scratch
 
-COPY exampleApp exampleApp
+COPY go-hello-world go-hello-world
 
-CMD ["./exampleApp"]  
-
-EXPOSE 80
+CMD ["go-hello-world"]
 
 
