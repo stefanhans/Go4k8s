@@ -18,6 +18,8 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 	//"k8s.io/apimachinery/pkg/util/intstr"
 	//"k8s.io/client-go/kubernetes/typed/core/v1"
+	"time"
+	"encoding/json"
 )
 
 func main() {
@@ -27,9 +29,13 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("config.Host: %s\n", config.Host)
+	//fmt.Printf("config.Host: %s\n", config.Host)
 
 	clientset, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		panic(err)
+	}
+	pod, err := clientset.CoreV1().Pods("kube-system").Get("kube-addon-manager-minikube", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}
@@ -53,6 +59,7 @@ func main() {
 						{
 							Name:  "go-webserver",
 							Image: "stefanhans/go-webserver",
+							//Command: []string{"echo", "hallo"},
 						},
 					},
 				},
@@ -89,6 +96,114 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	/*
+	deploymentWatch, err := deploymentsClient.Watch(metav1.ListOptions{})
+
+
+	resultChan := deploymentWatch.ResultChan()
+	go func() {
+		for {
+			<-resultChan
+		}
+	}
+	*/
+
+
+	// Waiting for pods
+	for  {
+		podList, err := clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{})
+		if err != nil {
+			panic(err)
+		}
+		if len(podList.Items) == 2 {
+			break
+		}
+		time.Sleep(time.Second)
+	}
+
+
+	// Get list of pods
+	podList, err := clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+
+	// Get pods' description in json
+	for n, pod := range podList.Items {
+		b, err := json.MarshalIndent(&pod, fmt.Sprintf("%d:", n), "  ")
+		if err != nil {
+			fmt.Printf(" !!! Pod %d !!! : Error: %s", n, err)
+			continue
+		}
+		fmt.Printf(" *** Pod %d *** \n%s\n\n", n, string(b))
+	}
+
+
+	// Get pods' customized description
+	for n, pod := range podList.Items {
+		fmt.Println()
+		fmt.Printf(" *** Metadata *** \n")
+		fmt.Printf("Pod[%v].Name: %s\n", n, pod.ClusterName)
+		fmt.Printf("Pod[%v].Namespace: %s\n", n, pod.Namespace)
+		fmt.Printf("Pod[%v].CreationTimestamp: %s\n", n, pod.CreationTimestamp)
+		fmt.Printf("Pod[%v].Labels[\"app\"]: %s\n", n, pod.Labels["app"])
+
+		fmt.Println()
+		fmt.Printf(" *** Spec *** \n")
+		fmt.Printf("Pod[%v].Spec.Containers[0].Name: %s\n", n, pod.Spec.Containers[0].Name)
+		fmt.Printf("Pod[%v].Spec.Containers[0].Image: %s\n", n, pod.Spec.Containers[0].Image)
+		fmt.Printf("Pod[%v].Spec.NodeName: %s\n", n, pod.Spec.NodeName)
+
+		fmt.Println()
+		fmt.Printf(" *** Status *** \n")
+		fmt.Printf("Pod[%v].Status.Phase: %v\n", n, pod.Status.Phase)
+
+		for _, condition := range pod.Status.Conditions {
+			if condition.Status == "True" {
+				fmt.Printf("Pod[%v].Status.Condition: True Status: %s\n", n, condition.Type)
+			}
+		}
+
+		fmt.Printf("Pod[%v].Status.HostIP: %v\n", n, pod.Status.HostIP)
+		fmt.Printf("Pod[%v].Status.HostIP: %v\n", n, pod.Status.PodIP)
+		fmt.Printf("Pod[%v].Status.StartTime: %v\n", n, pod.Status.StartTime)
+
+		for m, containerStatus := range pod.Status.ContainerStatuses {
+			fmt.Printf("Pod[%v].Status.ContainerStatuses[%d].Name: %v\n", n, m, containerStatus.Name)
+			fmt.Printf("Pod[%v].Status.ContainerStatuses[%d].Image: %v\n", n, m, containerStatus.Image)
+			fmt.Printf("Pod[%v].Status.ContainerStatuses[%d].State: %v\n", n, m, containerStatus.State)
+		}
+		fmt.Println()
+	}
+
+
+	// Wait for running container - NOT RECOMMENDED - Use Watch() instead
+	i := 0
+	for i < 2 {
+		podList, err = clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{})
+		if err != nil {
+			panic(err)
+		}
+		for n, pod := range podList.Items {
+			if pod.Status.ContainerStatuses[0].Ready {
+				i++
+			}
+			containerStatus := pod.Status.ContainerStatuses[0]
+			if containerStatus.State.Waiting != nil {
+				fmt.Printf("%d: %s: %s: %s\n", n, pod.ClusterName, pod.Spec.Containers[0].Name, containerStatus.State.Waiting.Reason)
+			}
+			if containerStatus.State.Running != nil {
+				fmt.Printf("%d: %s: %s: Container is Running\n", n, pod.ClusterName, pod.Spec.Containers[0].Name)
+			}
+			if containerStatus.State.Terminated != nil {
+				fmt.Printf("%d: %s: %s: %s\n", n, pod.ClusterName, pod.Spec.Containers[0].Name, containerStatus.State.Terminated.Reason)
+			}
+		}
+		time.Sleep(time.Second)
+	}
+
 	fmt.Printf("Created deployment %q.\n", resultDeployment.GetObjectMeta().GetName())
 
 	// Create Service
@@ -99,6 +214,15 @@ func main() {
 		panic(err)
 	}
 	fmt.Printf("Created service %q.\n", resultService.GetObjectMeta().GetName())
+	fmt.Printf("Please verify: http://%s:%v\n", pod.Status.HostIP, resultService.Spec.Ports[0].NodePort)
+
+
+
+	fmt.Printf("pod.Status.Message: %+v\n", pod.Status.Message)
+	fmt.Printf("pod.Status.Reason: %+v\n", pod.Status.Reason)
+
+
+
 
 	// Delete Deployment
 	prompt()
@@ -108,6 +232,32 @@ func main() {
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		panic(err)
+	}
+
+
+	// Wait for deleted container - NOT RECOMMENDED - Use Watch() instead
+	i = 0
+	for i < 2 {
+		podList, err = clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{})
+		if err != nil {
+			panic(err)
+		}
+		for n, pod := range podList.Items {
+			if pod.Status.ContainerStatuses[0].Ready {
+				i++
+			}
+			containerStatus := pod.Status.ContainerStatuses[0]
+			if containerStatus.State.Waiting != nil {
+				fmt.Printf("%d: %s: %s: %s\n", n, pod.ClusterName, pod.Spec.Containers[0].Name, containerStatus.State.Waiting.Reason)
+			}
+			if containerStatus.State.Running != nil {
+				fmt.Printf("%d: %s: %s: Container is Running\n", n, pod.ClusterName, pod.Spec.Containers[0].Name)
+			}
+			if containerStatus.State.Terminated != nil {
+				fmt.Printf("%d: %s: %s: %s\n", n, pod.ClusterName, pod.Spec.Containers[0].Name, containerStatus.State.Terminated.Reason)
+			}
+		}
+		time.Sleep(time.Second)
 	}
 	fmt.Println("Deleted deployment.")
 
