@@ -20,7 +20,7 @@ var html = `
 </body>
 </html>
 `
-var hostname string = "localhost"
+var hostname = "localhost"
 
 func httpHandler(w http.ResponseWriter, r *http.Request) {
 	format := "%s - [%s] \"%s %s %s\" %s\n"
