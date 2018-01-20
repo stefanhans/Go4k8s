@@ -31,6 +31,12 @@ func main() {
 
 	deploymentsClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceDefault)
 
+	// Watch the events
+	deploymentWatch, err := deploymentsClient.Watch(metav1.ListOptions{
+		Watch: false,
+	})
+	watchCh := deploymentWatch.ResultChan()
+
 	deployment := &appsv1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "go-hello-world-deployment",
@@ -46,8 +52,8 @@ func main() {
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name: "go-hello-world",
-							Image:   "stefanhans/go-hello-world",
+							Name:  "go-hello-world",
+							Image: "stefanhans/go-hello-world",
 						},
 					},
 				},
@@ -56,12 +62,30 @@ func main() {
 	}
 
 	// Create Deployment
-	fmt.Println("Creating deployment...")
+	fmt.Printf("\nCreating deployment...\n")
 	result, err := deploymentsClient.Create(deployment)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Created deployment %q.\n", result.GetObjectMeta().GetName())
+
+	//fmt.Printf("\n%v: \t%q\t%q\t%q", "TYPE", "POD", "MESSAGE", "REASON")
+	go func() {
+		for _ = range watchCh {
+
+			events, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{})
+			if err != nil {
+				panic(err)
+			}
+
+			for _, event := range events.Items {
+				fmt.Printf("%v: %v\t%q\t%q\t%v\t%q\n", event.CreationTimestamp,
+					event.Name, event.Status.Message, event.ObjectMeta.Name,
+					event.Spec.Containers[0].Image, event.Status.Conditions[0].Message)
+			}
+		}
+	}()
+
+	fmt.Printf("\nCreated deployment %q.\n", result.GetObjectMeta().GetName())
 
 	// Delete Deployment
 	prompt()
@@ -76,7 +100,7 @@ func main() {
 }
 
 func prompt() {
-	fmt.Printf("-> Press Return key to stop.")
+	fmt.Printf("\n-> Press Return key to stop.\n")
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		break
