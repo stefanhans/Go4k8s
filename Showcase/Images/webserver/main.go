@@ -12,10 +12,10 @@ var html = `
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Hello Universe</title>
+  <title>Go4k8s</title>
 </head>
 <body>
-  <h3>From My Webserver</h3>
+  <h3>Hello From Go4k8s Webserver</h3>
   <p>Hostname: %s</p>
 </body>
 </html>

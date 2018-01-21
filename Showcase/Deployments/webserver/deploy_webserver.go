@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"time"
 
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
@@ -17,20 +16,27 @@ import (
 
 func main() {
 
+	// Number of replicas
+	replicas := int32(2)
+
+	fmt.Println()
+
+	// Build Config
+	fmt.Println("Build Config")
 	config, err := clientcmd.BuildConfigFromFlags("", "/home/stefan/.kube/config")
 	if err != nil {
 		panic(err)
 	}
 
 	// Check security config
-	prompt("to check security config")
 	if config.Insecure {
-		fmt.Printf("Connecting to Config.Host %q is insecure!\n", config.Host)
+		fmt.Printf("Config.Host %q is insecure!\n", config.Host)
 	} else {
-		fmt.Printf("Connecting to Config.Host %q is secure!\n", config.Host)
+		fmt.Printf("Config.Host %q is secure!\n", config.Host)
 	}
 
 	// Create Clientset
+	fmt.Println("Create Clientset")
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err)
@@ -43,19 +49,17 @@ func main() {
 	}
 
 	// Create Client for Deployments
+	fmt.Println("Create Client for Deployments")
 	deploymentsClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceDefault)
 
-	// Watch the client for deployments
-	deploymentWatch, err := deploymentsClient.Watch(metav1.ListOptions{})
-	watchCh := deploymentWatch.ResultChan()
-
 	// Define Deployment
+	fmt.Println("Define Deployment")
 	deployment := &appsv1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "webserver-deployment",
 		},
 		Spec: appsv1beta1.DeploymentSpec{
-			Replicas: int32Ptr(2),
+			Replicas: int32Ptr(replicas),
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
@@ -75,9 +79,11 @@ func main() {
 	}
 
 	// Create Client for Services
+	fmt.Println("Create Client for Services")
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
 	// Define Service
+	fmt.Println("Define Service")
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "webserver-service",
@@ -99,16 +105,22 @@ func main() {
 		},
 	}
 
+	// Start watching the client for deployments
+	fmt.Println("Start watching the client for deployments")
+	deploymentWatch, err := deploymentsClient.Watch(metav1.ListOptions{})
+	watchCh := deploymentWatch.ResultChan()
+
 	// Create Deployment
-	fmt.Println("Creating deployment...")
+	prompt("to create the deployment")
+	fmt.Println("Create Deployment")
 	resultDeployment, err := deploymentsClient.Create(deployment)
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("######################################################")
+	// Watch out for all Pods running...
+	fmt.Printf("Watch out for all Pods of %q running...\n", resultDeployment.Name)
 	for evt := range watchCh {
-		fmt.Printf("evt.Type: %v\n", evt.Type)
 		if evt.Type == "MODIFIED" {
 			pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
 				LabelSelector: "app=webserver",
@@ -117,7 +129,7 @@ func main() {
 				panic(err)
 			}
 
-			i := 2
+			i := replicas
 			for _, pod := range pods.Items {
 				if pod.Status.ContainerStatuses[0].Ready {
 					fmt.Printf("Pod %q is running\n", pod.ObjectMeta.Name)
@@ -125,20 +137,24 @@ func main() {
 					i--
 				}
 			}
-			if i == 0 {
+			if i == int32(0) {
 				break
 			}
 		}
 	}
-	fmt.Println("######################################################")
+	fmt.Printf("All Pods of %q are running\n", resultDeployment.Name)
+
+	// Get pods' description in json
+	prompt("to get pods' description in json")
 
 	// Get list of pods
+	fmt.Println("Get list of pods")
 	podList, err := clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{})
 	if err != nil {
 		panic(err)
 	}
 
-	// Get pods' description in json
+	fmt.Println("Get pods' description in json")
 	for n, pod := range podList.Items {
 		b, err := json.MarshalIndent(&pod, fmt.Sprintf("%d:", n), "  ")
 		if err != nil {
@@ -149,6 +165,8 @@ func main() {
 	}
 
 	// Get pods' customized description
+	prompt("to get pods' customized description")
+	fmt.Println("Get pods' customized description")
 	for n, pod := range podList.Items {
 		fmt.Println()
 		fmt.Printf(" *** Metadata *** \n")
@@ -166,16 +184,15 @@ func main() {
 		fmt.Println()
 		fmt.Printf(" *** Status *** \n")
 		fmt.Printf("Pod[%v].Status.Phase: %v\n", n, pod.Status.Phase)
+		fmt.Printf("Pod[%v].Status.StartTime: %v\n", n, pod.Status.StartTime)
+		fmt.Printf("Pod[%v].Status.HostIP: %v\n", n, pod.Status.HostIP)
+		fmt.Printf("Pod[%v].Status.PodIP: %v\n", n, pod.Status.PodIP)
 
 		for _, condition := range pod.Status.Conditions {
 			if condition.Status == "True" {
 				fmt.Printf("Pod[%v].Status.Condition: True Status: %s\n", n, condition.Type)
 			}
 		}
-
-		fmt.Printf("Pod[%v].Status.HostIP: %v\n", n, pod.Status.HostIP)
-		fmt.Printf("Pod[%v].Status.HostIP: %v\n", n, pod.Status.PodIP)
-		fmt.Printf("Pod[%v].Status.StartTime: %v\n", n, pod.Status.StartTime)
 
 		for m, containerStatus := range pod.Status.ContainerStatuses {
 			fmt.Printf("Pod[%v].Status.ContainerStatuses[%d].Name: %v\n", n, m, containerStatus.Name)
@@ -185,44 +202,19 @@ func main() {
 		fmt.Println()
 	}
 
-	// Wait for running container - NOT RECOMMENDED - Use Watch() instead
-	i := 0
-	for i < 2 {
-		podList, err = clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{})
-		if err != nil {
-			panic(err)
-		}
-		for n, pod := range podList.Items {
-			if pod.Status.ContainerStatuses[0].Ready {
-				i++
-			}
-			containerStatus := pod.Status.ContainerStatuses[0]
-			if containerStatus.State.Waiting != nil {
-				fmt.Printf("%d: %s: %s: %s\n", n, pod.ClusterName, pod.Spec.Containers[0].Name, containerStatus.State.Waiting.Reason)
-			}
-			if containerStatus.State.Running != nil {
-				fmt.Printf("%d: %s: %s: Container is Running\n", n, pod.ClusterName, pod.Spec.Containers[0].Name)
-			}
-			if containerStatus.State.Terminated != nil {
-				fmt.Printf("%d: %s: %s: %s\n", n, pod.ClusterName, pod.Spec.Containers[0].Name, containerStatus.State.Terminated.Reason)
-			}
-		}
-		time.Sleep(time.Second)
-	}
-	fmt.Printf("Created deployment %q.\n", resultDeployment.GetObjectMeta().GetName())
-
 	// Create Service
 	prompt("to create the service")
-	fmt.Println("Creating service...")
+	fmt.Println("Create Service")
 	resultService, err := servicesClient.Create(service)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Created service %q.\n", resultService.GetObjectMeta().GetName())
-	fmt.Printf("Please verify: http://%s:%v\n", pod.Status.HostIP, resultService.Spec.Ports[0].NodePort)
 
-	fmt.Printf("pod.Status.Message: %+v\n", pod.Status.Message)
-	fmt.Printf("pod.Status.Reason: %+v\n", pod.Status.Reason)
+	// Deployment and services finished
+	fmt.Printf("All Pods of %q are running\n", resultDeployment.Name)
+	fmt.Printf("Created service %q.\n", resultService.Name)
+
+	fmt.Printf("\nPlease verify: http://%s:%v\n", pod.Status.HostIP, resultService.Spec.Ports[0].NodePort)
 
 	// Delete Deployment
 	prompt("to delete the deployment")
@@ -234,33 +226,16 @@ func main() {
 		panic(err)
 	}
 
-	// Wait for deleted container - NOT RECOMMENDED - Use Watch() instead
-	i = 0
-	for i < 2 {
-		podList, err = clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{})
-		if err != nil {
-			panic(err)
+	// Watch out for the deployment deleted...
+	fmt.Printf("Watch out for the deployment %q deleted...\n", resultDeployment.Name)
+	for evt := range watchCh {
+		if evt.Type == "DELETED" {
+			break
 		}
-		for n, pod := range podList.Items {
-			if pod.Status.ContainerStatuses[0].Ready {
-				i++
-			}
-			containerStatus := pod.Status.ContainerStatuses[0]
-			if containerStatus.State.Waiting != nil {
-				fmt.Printf("%d: %s: %s: %s\n", n, pod.ClusterName, pod.Spec.Containers[0].Name, containerStatus.State.Waiting.Reason)
-			}
-			if containerStatus.State.Running != nil {
-				fmt.Printf("%d: %s: %s: Container is Running\n", n, pod.ClusterName, pod.Spec.Containers[0].Name)
-			}
-			if containerStatus.State.Terminated != nil {
-				fmt.Printf("%d: %s: %s: %s\n", n, pod.ClusterName, pod.Spec.Containers[0].Name, containerStatus.State.Terminated.Reason)
-			}
-		}
-		time.Sleep(time.Second)
 	}
-	fmt.Println("Deleted deployment.")
+	fmt.Printf("The deployment of %q is deleted\n", resultDeployment.Name)
 
-	// Delete Deployment
+	// Delete Service
 	prompt("to delete the service")
 	fmt.Println("Deleting service...")
 	deletePolicy = metav1.DeletePropagationForeground
@@ -273,7 +248,7 @@ func main() {
 }
 
 func prompt(str string) {
-	fmt.Printf("-> Press Return key %s", str)
+	fmt.Printf("\n-> Press Return key %s", str)
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		break
