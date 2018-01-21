@@ -1,8 +1,9 @@
 Go: Build and Run
 
-    go build -o ./go-webserver .
-    ./go-webserver
-    ^C
+    go build -o ./webserver .
+    chmod +x webserver
+    ./webserver
+    # Stop later via Ctrl-C
 
 Go: Test
 
@@ -10,8 +11,8 @@ Go: Test
 
 Docker: Build and Run
 
-    docker build -t stefanhans/go-webserver .
-    docker run --publish 8080:8080 --name test --rm stefanhans/go-webserver:latest
+    docker build -t stefanhans/webserver .
+    docker run --publish 8080:8080 --name test --rm stefanhans/webserver:latest
 
 Docker: Test
 
@@ -20,12 +21,12 @@ Docker: Test
     
 Docker: Push to Docker Hub
 
-    docker push stefanhans/go-webserver:latest
+    docker push stefanhans/webserver:latest
 
 Kubernetes: Deploy, Expose and Test
 
     kubectl create -f DeployGoWebserver.yaml
-    kubectl get pods,service -l app=go-webserver # wait until all is up and running
-    curl --head http://$(minikube ip):$(kubectl get svc -l app=go-webserver -o jsonpath='{.items[0].spec.ports[0].nodePort}')
-    kubectl delete all -l app=go-webserver
+    kubectl get pods,service -l app=webserver # wait until all is up and running
+    curl --head http://$(minikube ip):$(kubectl get svc -l app=webserver -o jsonpath='{.items[0].spec.ports[0].nodePort}')
+    kubectl delete all -l app=webserver
 

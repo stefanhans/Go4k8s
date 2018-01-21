@@ -1,6 +1,7 @@
 Go: Build and Run
 
     go build -o ./hello-world .
+    chmod +x hello-world
     ./hello-world
 
 Docker: Build and Run
