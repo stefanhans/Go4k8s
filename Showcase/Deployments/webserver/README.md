@@ -11,3 +11,4 @@ Investigating...
 
     kubectl get pods -l app=webserver
     kubectl logs -l app=webserver
+    kubectl get events -w
