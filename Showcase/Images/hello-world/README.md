@@ -14,6 +14,8 @@ Docker: Push to Docker Hub
 
 Kubernetes: Deploy, Expose and Test
 
+Having a running environment, e.g. `minikube start`
+
     kubectl create -f DeployHelloWorld.yaml
     kubectl get pods -l app=hello-world # wait until all is up and running
     kubectl logs
@@ -23,4 +25,6 @@ Investigate using the last two steps repeatedly!
 Kubernetes: Cleanup
 
     kubectl delete all -l app=hello-world
+    
+Next Step: Try out the [deployment programmed in Go](../../Deployments/hello-world)
 
