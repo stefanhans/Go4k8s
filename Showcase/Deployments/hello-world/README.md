@@ -1,4 +1,4 @@
-Prerequisites: Tested [hello-world](../../Images/hello-world) image.
+Prerequisites: Tested [hello-world image](../../Images/hello-world).
 
 Build and run Go executables
 
