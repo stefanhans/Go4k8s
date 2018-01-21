@@ -2,24 +2,17 @@ package main
 
 import (
 	"bufio"
-	//"flag"
+	"encoding/json"
 	"fmt"
 	"os"
-	//"path/filepath"
+	"time"
 
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	//"k8s.io/client-go/util/homedir"
-	//"k8s.io/client-go/util/retry"
-	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
-	//"k8s.io/apimachinery/pkg/util/intstr"
-	//"k8s.io/client-go/kubernetes/typed/core/v1"
-	"encoding/json"
-	"time"
 )
 
 func main() {
@@ -29,23 +22,34 @@ func main() {
 		panic(err)
 	}
 
-	//fmt.Printf("config.Host: %s\n", config.Host)
+	// Check security config
+	prompt("to check security config")
+	if config.Insecure {
+		fmt.Printf("Connecting to Config.Host %q is insecure!\n", config.Host)
+	} else {
+		fmt.Printf("Connecting to Config.Host %q is secure!\n", config.Host)
+	}
 
+	// Create Clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err)
 	}
+
+	// !!!
 	pod, err := clientset.CoreV1().Pods("kube-system").Get("kube-addon-manager-minikube", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}
 
+	// Create Client for Deployments
 	deploymentsClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceDefault)
 
 	// Watch the client for deployments
 	deploymentWatch, err := deploymentsClient.Watch(metav1.ListOptions{})
 	watchCh := deploymentWatch.ResultChan()
 
+	// Define Deployment
 	deployment := &appsv1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "webserver-deployment",
@@ -63,7 +67,6 @@ func main() {
 						{
 							Name:  "webserver",
 							Image: "stefanhans/webserver",
-							//Command: []string{"echo", "hallo"},
 						},
 					},
 				},
@@ -71,8 +74,10 @@ func main() {
 		},
 	}
 
+	// Create Client for Services
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
+	// Define Service
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "webserver-service",
@@ -207,7 +212,7 @@ func main() {
 	fmt.Printf("Created deployment %q.\n", resultDeployment.GetObjectMeta().GetName())
 
 	// Create Service
-	prompt()
+	prompt("to create the service")
 	fmt.Println("Creating service...")
 	resultService, err := servicesClient.Create(service)
 	if err != nil {
@@ -220,7 +225,7 @@ func main() {
 	fmt.Printf("pod.Status.Reason: %+v\n", pod.Status.Reason)
 
 	// Delete Deployment
-	prompt()
+	prompt("to delete the deployment")
 	fmt.Println("Deleting deployment...")
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := deploymentsClient.Delete("webserver-deployment", &metav1.DeleteOptions{
@@ -256,7 +261,7 @@ func main() {
 	fmt.Println("Deleted deployment.")
 
 	// Delete Deployment
-	prompt()
+	prompt("to delete the service")
 	fmt.Println("Deleting service...")
 	deletePolicy = metav1.DeletePropagationForeground
 	if err := servicesClient.Delete("webserver-service", &metav1.DeleteOptions{
@@ -267,8 +272,8 @@ func main() {
 	fmt.Println("Deleted service.")
 }
 
-func prompt() {
-	fmt.Printf("-> Press Return key to continue.")
+func prompt(str string) {
+	fmt.Printf("-> Press Return key %s", str)
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		break
