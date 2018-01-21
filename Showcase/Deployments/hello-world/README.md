@@ -1,6 +1,6 @@
 Prerequisites: Tested [hello-world image](../../Images/hello-world).
 
-Build and run Go executables
+Build and run Go executable
 
     go build -o ./deploy_helloworld deploy_helloworld.go    
     chmod +x deploy_helloworld
