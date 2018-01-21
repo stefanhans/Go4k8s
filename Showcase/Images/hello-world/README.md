@@ -18,7 +18,8 @@ Kubernetes: Deploy and Test
 Having a running environment, e.g. `minikube start`
 
     kubectl create -f DeployHelloWorld.yaml
-    kubectl get pods -l app=hello-world # wait until all is up and running
+    
+    kubectl get pods -l app=hello-world 
     kubectl logs -l app=hello-world
     
 Investigate using the last two steps repeatedly!

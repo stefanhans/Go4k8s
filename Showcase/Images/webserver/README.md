@@ -28,9 +28,12 @@ Kubernetes: Deploy and Test
 Having a running environment, e.g. `minikube start`
 
     kubectl create -f DeployGoWebserver.yaml
-    kubectl get pods,service -l app=webserver # wait until all is up and running
-    kubectl logs -l app=hello-world
+    
+    kubectl get pods,service -l app=webserver
+    kubectl logs -l app=webserver
+    
     curl --head http://$(minikube ip):$(kubectl get svc -l app=webserver -o jsonpath='{.items[0].spec.ports[0].nodePort}')
+    echo "http://$(minikube ip):$(kubectl get svc -l app=webserver -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
     
 Kubernetes: Cleanup
     
