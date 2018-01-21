@@ -2,41 +2,36 @@ package main
 
 import (
 	"bufio"
-	//"flag"
 	"fmt"
 	"os"
-	//"path/filepath"
 
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
-	//"k8s.io/client-go/util/homedir"
-	//"k8s.io/client-go/util/retry"
-	// Uncomment the following line to load the gcp plugin (only required to authenticate against GKE clusters).
-	// _ "k8s.io/client-go/plugin/pkg/client/auth/gcp"
 )
 
 func main() {
 
+	// Build Config
 	config, err := clientcmd.BuildConfigFromFlags("", "/home/stefan/.kube/config")
 	if err != nil {
 		panic(err)
 	}
+
+	// Create Clientset
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
 		panic(err)
 	}
 
+	// Create Client for Deployments
 	deploymentsClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceDefault)
 
-	// Watch the events
-	deploymentWatch, err := deploymentsClient.Watch(metav1.ListOptions{
-		Watch: false,
-	})
-	watchCh := deploymentWatch.ResultChan()
 
+	// Define Deployment
 	deployment := &appsv1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "go-hello-world-deployment",
@@ -67,24 +62,6 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-
-	//fmt.Printf("\n%v: \t%q\t%q\t%q", "TYPE", "POD", "MESSAGE", "REASON")
-	go func() {
-		for _ = range watchCh {
-
-			events, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{})
-			if err != nil {
-				panic(err)
-			}
-
-			for _, event := range events.Items {
-				fmt.Printf("%v: %v\t%q\t%q\t%v\t%q\n", event.CreationTimestamp,
-					event.Name, event.Status.Message, event.ObjectMeta.Name,
-					event.Spec.Containers[0].Image, event.Status.Conditions[0].Message)
-			}
-		}
-	}()
-
 	fmt.Printf("\nCreated deployment %q.\n", result.GetObjectMeta().GetName())
 
 	// Delete Deployment
