@@ -48,21 +48,21 @@ func main() {
 
 	deployment := &appsv1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "go-webserver-deployment",
+			Name: "webserver-deployment",
 		},
 		Spec: appsv1beta1.DeploymentSpec{
 			Replicas: int32Ptr(2),
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": "go-webserver",
+						"app": "webserver",
 					},
 				},
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:  "go-webserver",
-							Image: "stefanhans/go-webserver",
+							Name:  "webserver",
+							Image: "stefanhans/webserver",
 							//Command: []string{"echo", "hallo"},
 						},
 					},
@@ -75,14 +75,14 @@ func main() {
 
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "go-webserver-service",
+			Name: "webserver-service",
 			Labels: map[string]string{
-				"app": "go-webserver",
+				"app": "webserver",
 			},
 		},
 		Spec: apiv1.ServiceSpec{
 			Selector: map[string]string{
-				"app": "go-webserver",
+				"app": "webserver",
 			},
 			Ports: []apiv1.ServicePort{
 				{
@@ -106,7 +106,7 @@ func main() {
 		fmt.Printf("evt.Type: %v\n", evt.Type)
 		if evt.Type == "MODIFIED" {
 			pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
-				LabelSelector: "app=go-webserver",
+				LabelSelector: "app=webserver",
 			})
 			if err != nil {
 				panic(err)
@@ -223,7 +223,7 @@ func main() {
 	prompt()
 	fmt.Println("Deleting deployment...")
 	deletePolicy := metav1.DeletePropagationForeground
-	if err := deploymentsClient.Delete("go-webserver-deployment", &metav1.DeleteOptions{
+	if err := deploymentsClient.Delete("webserver-deployment", &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		panic(err)
@@ -259,7 +259,7 @@ func main() {
 	prompt()
 	fmt.Println("Deleting service...")
 	deletePolicy = metav1.DeletePropagationForeground
-	if err := servicesClient.Delete("go-webserver-service", &metav1.DeleteOptions{
+	if err := servicesClient.Delete("webserver-service", &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		panic(err)

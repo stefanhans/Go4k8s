@@ -34,21 +34,21 @@ func main() {
 	// Define Deployment
 	deployment := &appsv1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "go-hello-world-deployment",
+			Name: "hello-world-deployment",
 		},
 		Spec: appsv1beta1.DeploymentSpec{
 			Replicas: int32Ptr(2),
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": "go-hello-world",
+						"app": "hello-world",
 					},
 				},
 				Spec: apiv1.PodSpec{
 					Containers: []apiv1.Container{
 						{
-							Name:  "go-hello-world",
-							Image: "stefanhans/go-hello-world",
+							Name:  "hello-world",
+							Image: "stefanhans/hello-world",
 						},
 					},
 				},
@@ -68,7 +68,7 @@ func main() {
 	prompt()
 	fmt.Println("Deleting deployment...")
 	deletePolicy := metav1.DeletePropagationForeground
-	if err := deploymentsClient.Delete("go-hello-world-deployment", &metav1.DeleteOptions{
+	if err := deploymentsClient.Delete("hello-world-deployment", &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		panic(err)
