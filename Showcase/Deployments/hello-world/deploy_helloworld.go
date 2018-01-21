@@ -77,7 +77,7 @@ func main() {
 }
 
 func prompt() {
-	fmt.Printf("\n-> Press Return key to stop.\n")
+	fmt.Printf("\n-> Press Return key to stop the deployment.\n")
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		break
