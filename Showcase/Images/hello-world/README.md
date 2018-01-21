@@ -13,7 +13,7 @@ Docker: Push to Docker Hub
 
     docker push stefanhans/hello-world:latest
 
-Kubernetes: Deploy, Expose and Test
+Kubernetes: Deploy and Test
 
 Having a running environment, e.g. `minikube start`
 
