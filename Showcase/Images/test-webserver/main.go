@@ -17,7 +17,7 @@ var html = `
 <body style="background-color:yellow">
   <h3>Hello From Go4k8s Webserver</h3>
   <p>Version: %s</p>
-</body> 
+</body>
 </html>
 `
 var version = "1.0.2"
