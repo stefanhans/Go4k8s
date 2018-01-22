@@ -58,7 +58,7 @@ Kubernetes Staging: Cleanup
   
 Leave production running for next step!
 
-### Prepare Automated Blue-Green Deployment  
+### Prepare Automated Test Container
 
 Docker: Build Image and Container
 

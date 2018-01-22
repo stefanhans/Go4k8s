@@ -14,10 +14,5 @@ golint ./...
 echo "go build -o ./webserver main.go"
 go build -o ./webserver main.go
 
-echo "./webserver"
+echo "./webserver &"
 ./webserver
-
-read -p "Enter Version for the image: "  version
-
-echo "docker push stefanhans/webserver:$version"
-docker push stefanhans/webserver:$version

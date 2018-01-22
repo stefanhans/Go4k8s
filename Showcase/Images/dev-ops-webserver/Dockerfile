@@ -8,5 +8,5 @@ RUN go-wrapper install    # "go install -v ./..."
 
 RUN go get -u github.com/golang/lint/golint
 
-ENTRYPOINT ["./buildandrun.sh"]
+ENTRYPOINT ["./buildandrun.sh", "echo", "to do"]
 EXPOSE 8080
