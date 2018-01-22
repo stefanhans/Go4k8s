@@ -20,7 +20,7 @@ var html = `
 </body>
 </html>
 `
-var version = "1.0.2"
+var version = "1.0.3"
 
 func httpHandler(w http.ResponseWriter, r *http.Request) {
 	format := "%s - [%s] \"%s %s %s\" %s\n"
