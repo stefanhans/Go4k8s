@@ -1,10 +1,6 @@
-
-    
-Kubernetes: Deploy Production Webserver
-
-    
+Prerequisites: Tested [test-webserver image](../../Images/test-webserver).    
 
 Build and run Go executables
 
-    go build -o ./deploy_dev-ops deploy_dev-ops.go    
-    ./deploy_dev-ops
+    go build -o ./blue-green-deployment blue-green-deployment.go 
+    ./blue-green-deployment

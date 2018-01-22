@@ -14,6 +14,7 @@ Kubernetes Staging: Deploy and Test
     curl http://$(minikube ip):$(kubectl get svc -l app=webserver,env=staging -o jsonpath='{.items[0].spec.ports[0].nodePort}')
     echo "http://$(minikube ip):$(kubectl get svc -l app=webserver,env=staging -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
 
+
 Kubernetes Production: Deploy and Test
 
     kubectl create -f DeployProdWebserver.yaml
@@ -24,6 +25,7 @@ Kubernetes Production: Deploy and Test
     curl http://$(minikube ip):$(kubectl get svc -l app=webserver,env=production -o jsonpath='{.items[0].spec.ports[0].nodePort}')
     echo "http://$(minikube ip):$(kubectl get svc -l app=webserver,env=production -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
     
+    
 Kubernetes: Switch Production Loadbalancer to Staging Deployment
 
     kubectl edit -f DeployProdWebserver.yaml
@@ -31,6 +33,7 @@ Kubernetes: Switch Production Loadbalancer to Staging Deployment
     Service: .spec.selector.env: production     =>    staging
     
 Verify!    
+
 
 Kubernetes: Switch Production Image to New Version 
   
@@ -68,40 +71,25 @@ Go: Push New Version of 'main.go' to GitHub
     git push
 
 
-Docker: Build Image and Container
+Docker: Build Image, run Container and verify
 
-    docker build -t stefanhans/test-webserver .
-    docker create --publish 8080:8080 --name test-webserver-container stefanhans/test-webserver
+    docker build -f Dockerfile.test -t stefanhans/test-webserver .
+    docker run --rm --name test-webserver-container --publish 8080:8080 stefanhans/test-webserver
     
-    
-Docker: Run Container and Verify
-
-    docker start test-webserver-container
     curl http://localhost:8080
     
 Docker: Stop Container
 
     docker stop test-webserver-container
     
-Docker: Push Container to Docker Hub
-
-    docker push stefanhans/test-webserver
-
-Kubernetes: Deploy and Test
-
-    kubectl create -f DeployProdWebserver.yaml
     
-    kubectl get pods,service -l app=prod-webserver
-    kubectl logs -l app=prod-webserver
-    
-    curl http://$(minikube ip):$(kubectl get svc -l app=prod-webserver -o jsonpath='{.items[0].spec.ports[0].nodePort}')
-    echo "http://$(minikube ip):$(kubectl get svc -l app=prod-webserver -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
-    
-Kubernetes: Cleanup
+Docker: Build Image and push to Docker Hub
 
-Do not cleanup before 'Next Step'!
-    
-    kubectl delete all -l app=prod-webserver
+Choose new image tag for staging and production, respectively.
+
+    docker build -t stefanhans/webserver:1.0.3 .
+    docker push stefanhans/webserver:1.0.3
+
     
 Next Step: Try out the [DevOps deployment programmed in Go](../../Deployments/dev-ops)
     
