@@ -1,5 +1,30 @@
-Prerequisites: Tested [webserver image](../../Images/webserver), and pushed to GitHub.
+Prerequisites: Tested [webserver image](../../Images/webserver), create two versions (*.yaml), and push to GitHub.
 
+Having a running environment, e.g. `minikube start`
+
+Kubernetes Staging: Deploy and Test
+
+    kubectl create -f DeployStagingWebserver.yaml
+    
+    kubectl get pods,service -l app=webserver,env=staging
+    kubectl logs -l app=webserver,env=staging
+    
+    curl --head http://$(minikube ip):$(kubectl get svc -l app=webserver,env=staging -o jsonpath='{.items[0].spec.ports[0].nodePort}')
+    echo "http://$(minikube ip):$(kubectl get svc -l app=webserver,env=staging -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
+
+Kubernetes Staging: Cleanup
+
+    kubectl delete all -l app=webserver,env=staging
+
+Kubernetes Production: Deploy and Test
+
+    kubectl create -f DeployProdWebserver.yaml
+    
+    kubectl get pods,service -l app=webserver,env=production
+    kubectl logs -l app=webserver,env=production
+    
+    curl --head http://$(minikube ip):$(kubectl get svc -l app=webserver,env=production -o jsonpath='{.items[0].spec.ports[0].nodePort}')
+    echo "http://$(minikube ip):$(kubectl get svc -l app=webserver,env=production -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
 
 Docker: Build Image and Container
 
@@ -20,8 +45,6 @@ Docker: Push Container to Docker Hub
     docker push stefanhans/dev-ops-webserver
 
 Kubernetes: Deploy and Test
-
-Having a running environment, e.g. `minikube start`
 
     kubectl create -f DeployProdWebserver.yaml
     

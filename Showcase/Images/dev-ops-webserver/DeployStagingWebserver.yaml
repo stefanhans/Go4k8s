@@ -1,34 +1,39 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: webserver-deployment
+  name: webserver-staging-deployment
   labels:
     app: webserver
+    env: staging
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: webserver
+      env: staging
   template:
     metadata:
       labels:
         app: webserver
+        env: staging
     spec:
       containers:
       - name: webserver
-        image: stefanhans/webserver:1.0.0 # change accordingly for other versions
+        image: stefanhans/webserver:1.0.1
         ports:
         - containerPort: 8080
 ---
 kind: Service
 apiVersion: v1
 metadata:
-  name: webserver-service
+  name: staging-webserver-service
   labels:
     app: webserver
+    env: staging
 spec:
   selector:
     app: webserver
+    env: staging
   ports:
   - protocol: TCP
     port: 8080

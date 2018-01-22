@@ -11,8 +11,10 @@ Go: Test
 
 Docker: Build and Run
 
-    docker build -t stefanhans/webserver .
-    docker run --publish 8080:8080 --name test --rm stefanhans/webserver:latest
+Choose image tag '1.0.1' for staging in addition, if needed for dev-ops-webserver and blue-green deployment, accordingly.
+
+    docker build -t stefanhans/webserver:1.0.0 .
+    docker run --publish 8080:8080 --name test --rm stefanhans/webserver:1.0.0
 
 Docker: Test
 
@@ -21,7 +23,7 @@ Docker: Test
     
 Docker: Push to Docker Hub
 
-    docker push stefanhans/webserver:latest
+    docker push stefanhans/webserver:1.0.0
 
 Kubernetes: Deploy and Test
 

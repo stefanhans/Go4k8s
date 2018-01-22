@@ -1,22 +1,25 @@
 apiVersion: apps/v1beta2
 kind: Deployment
 metadata:
-  name: webserver-deployment
+  name: webserver-prod-deployment
   labels:
     app: webserver
+    env: production
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: webserver
+      env: production
   template:
     metadata:
       labels:
         app: webserver
+        env: production
     spec:
       containers:
       - name: webserver
-        image: stefanhans/webserver:latest
+        image: stefanhans/webserver:1.0.0
         ports:
         - containerPort: 8080
 ---
@@ -29,6 +32,7 @@ metadata:
 spec:
   selector:
     app: webserver
+    env: production
   ports:
   - protocol: TCP
     port: 8080
