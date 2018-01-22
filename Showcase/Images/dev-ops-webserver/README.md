@@ -9,7 +9,7 @@ Docker: Build Image and Container
 Docker: Run Container and Verify
 
     docker start dev-ops-webserver-container
-    http://localhost:8080
+    curl --head http://localhost:8080
     
 Docker: Stop Container
 
