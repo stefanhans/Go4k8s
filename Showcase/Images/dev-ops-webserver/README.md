@@ -58,25 +58,34 @@ Kubernetes Staging: Cleanup
   
 Leave production running for next step!
 
+
 ### Prepare Automated Test Container
+
+Go: Push New Version of 'main.go' to GitHub
+
+    git add main.go
+    git commit -m "Test version"
+    git push
+
 
 Docker: Build Image and Container
 
-    docker build -t stefanhans/dev-ops-webserver .
-    docker create --publish 8080:8080 --name dev-ops-webserver-container stefanhans/dev-ops-webserver
+    docker build -t stefanhans/test-webserver .
+    docker create --publish 8080:8080 --name test-webserver-container stefanhans/test-webserver
+    
     
 Docker: Run Container and Verify
 
-    docker start dev-ops-webserver-container
-    curl --head http://localhost:8080
+    docker start test-webserver-container
+    curl http://localhost:8080
     
 Docker: Stop Container
 
-    docker stop dev-ops-webserver-container
+    docker stop test-webserver-container
     
 Docker: Push Container to Docker Hub
 
-    docker push stefanhans/dev-ops-webserver
+    docker push stefanhans/test-webserver
 
 Kubernetes: Deploy and Test
 
