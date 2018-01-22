@@ -1,6 +1,8 @@
-Prerequisites: Tested [webserver image](../../Images/webserver), create two versions (*.yaml), and push to GitHub.
+Prerequisites: Tested [webserver image](../../Images/webserver), created two versions (*.yaml), and pushed to GitHub.
 
 Having a running environment, e.g. `minikube start`
+
+### Do a Blue-Green Deployment
 
 Kubernetes Staging: Deploy and Test
 
@@ -9,12 +11,8 @@ Kubernetes Staging: Deploy and Test
     kubectl get pods,service -l app=webserver,env=staging
     kubectl logs -l app=webserver,env=staging
     
-    curl --head http://$(minikube ip):$(kubectl get svc -l app=webserver,env=staging -o jsonpath='{.items[0].spec.ports[0].nodePort}')
+    curl http://$(minikube ip):$(kubectl get svc -l app=webserver,env=staging -o jsonpath='{.items[0].spec.ports[0].nodePort}')
     echo "http://$(minikube ip):$(kubectl get svc -l app=webserver,env=staging -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
-
-Kubernetes Staging: Cleanup
-
-    kubectl delete all -l app=webserver,env=staging
 
 Kubernetes Production: Deploy and Test
 
@@ -23,8 +21,44 @@ Kubernetes Production: Deploy and Test
     kubectl get pods,service -l app=webserver,env=production
     kubectl logs -l app=webserver,env=production
     
-    curl --head http://$(minikube ip):$(kubectl get svc -l app=webserver,env=production -o jsonpath='{.items[0].spec.ports[0].nodePort}')
+    curl http://$(minikube ip):$(kubectl get svc -l app=webserver,env=production -o jsonpath='{.items[0].spec.ports[0].nodePort}')
     echo "http://$(minikube ip):$(kubectl get svc -l app=webserver,env=production -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
+    
+Kubernetes: Switch Production Loadbalancer to Staging Deployment
+
+    kubectl edit -f DeployProdWebserver.yaml
+    
+    Service: .spec.selector.env: production     =>    staging
+    
+Verify!    
+
+Kubernetes: Switch Production Image to New Version 
+  
+    kubectl edit -f DeployProdWebserver.yaml
+    
+    Deployment: .spec.template.spec.containers.image: stefanhans/webserver:1.0.0     =>    stefanhans/webserver:1.0.1
+    
+Kubernetes: Switch Staging Loadbalancer to Production Deployment 
+
+    kubectl edit -f DeployStagingWebserver.yaml
+    
+    Service: .spec.selector.env: staging     =>    production
+    
+Verify!   
+
+Kubernetes: Switch Production Loadbalancer back to Production Deployment
+
+    kubectl edit -f DeployProdWebserver.yaml
+    
+    Service: .spec.selector.env: staging     =>    production
+    
+Kubernetes Staging: Cleanup
+
+    kubectl delete all -l app=webserver,env=staging
+  
+Leave production running for next step!
+
+### Prepare Automated Blue-Green Deployment  
 
 Docker: Build Image and Container
 
@@ -51,7 +85,7 @@ Kubernetes: Deploy and Test
     kubectl get pods,service -l app=prod-webserver
     kubectl logs -l app=prod-webserver
     
-    curl --head http://$(minikube ip):$(kubectl get svc -l app=prod-webserver -o jsonpath='{.items[0].spec.ports[0].nodePort}')
+    curl http://$(minikube ip):$(kubectl get svc -l app=prod-webserver -o jsonpath='{.items[0].spec.ports[0].nodePort}')
     echo "http://$(minikube ip):$(kubectl get svc -l app=prod-webserver -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
     
 Kubernetes: Cleanup

@@ -29,6 +29,7 @@ metadata:
   name: webserver-service
   labels:
     app: webserver
+    env: production
 spec:
   selector:
     app: webserver
