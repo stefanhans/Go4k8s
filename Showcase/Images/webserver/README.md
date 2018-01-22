@@ -1,8 +1,8 @@
 Go: Build and Run
 
     go build -o ./webserver .
-    chmod +x webserver
     ./webserver
+    
     # Stop later via Ctrl-C
 
 Go: Test
