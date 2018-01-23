@@ -12,6 +12,8 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/retry"
+	"time"
 )
 
 func main() {
@@ -38,6 +40,8 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	fmt.Println()
 
 	// Create Client for Deployments
 	fmt.Println("Create Client for Deployments")
@@ -74,6 +78,8 @@ func main() {
 		},
 	}
 
+	fmt.Println()
+
 	// Create Client for Services
 	fmt.Println("Create Client for Services")
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
@@ -97,18 +103,19 @@ func main() {
 				{
 					Protocol: "TCP",
 					Port:     int32(8080),
+					NodePort: int32(30002), // The range of valid ports is 30000-32767
 				},
 			},
 			Type: apiv1.ServiceTypeLoadBalancer,
 		},
 	}
 
-	/*
-		// Start watching the client for deployments
-		fmt.Println("Start watching the client for deployments")
-		deploymentWatch, err := deploymentsClient.Watch(metav1.ListOptions{})
-		watchCh := deploymentWatch.ResultChan()
-	*/
+	fmt.Println()
+
+	// Start watching the client for deployments
+	fmt.Println("Start watching the client for deployments")
+	deploymentWatch, err := deploymentsClient.Watch(metav1.ListOptions{})
+	watchCh := deploymentWatch.ResultChan()
 
 	// Create Deployment
 	prompt("to create the deployment")
@@ -118,116 +125,133 @@ func main() {
 		panic(err)
 	}
 
-	/*
-		// Watch out for all Pods running...
-		fmt.Printf("Watch out for all Pods of %q running...\n", resultDeployment.Name)
-		for evt := range watchCh {
-			if evt.Type == "MODIFIED" {
-				pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
-					LabelSelector: "app=webserver",
-				})
-				if err != nil {
-					panic(err)
-				}
 
-				i := replicas
-				for _, pod := range pods.Items {
-					if pod.Status.ContainerStatuses[0].Ready {
-						fmt.Printf("Pod %q is running\n", pod.ObjectMeta.Name)
+	time.Sleep(time.Second)
 
-						i--
-					}
-				}
-				if i == int32(0) {
-					break
-				}
-			}
-		}
-		fmt.Printf("All Pods of %q are running\n", resultDeployment.Name)
-
-		// Get pods' description in json
-		prompt("to get pods' description in json")
-
-		// Get list of pods
-		fmt.Println("Get list of pods")
-		podList, err := clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{})
-		if err != nil {
-			panic(err)
-		}
-
-		fmt.Println("Get pods' description in json")
-		for n, pod := range podList.Items {
-			b, err := json.MarshalIndent(&pod, fmt.Sprintf("%d:", n), "  ")
+	// Watch out for all Pods running...
+	fmt.Printf("Watch out for all Pods of %q running...\n", resultDeployment.Name)
+	for evt := range watchCh {
+		if evt.Type == "MODIFIED" {
+			pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
+				LabelSelector: "env=staging",
+			})
 			if err != nil {
-				fmt.Printf(" !!! Pod %d !!! : Error: %s", n, err)
-				continue
+				panic(err)
 			}
-			fmt.Printf(" *** Pod %d *** \n%s\n\n", n, string(b))
-		}
 
-		// Get pods' customized description
-		prompt("to get pods' customized description")
-		fmt.Println("Get pods' customized description")
-		for n, pod := range podList.Items {
-			fmt.Println()
-			fmt.Printf(" *** Metadata *** \n")
-			fmt.Printf("Pod[%v].Name: %s\n", n, pod.ObjectMeta.Name)
-			fmt.Printf("Pod[%v].Namespace: %s\n", n, pod.ObjectMeta.Namespace)
-			fmt.Printf("Pod[%v].CreationTimestamp: %s\n", n, pod.ObjectMeta.CreationTimestamp)
-			fmt.Printf("Pod[%v].Labels[\"app\"]: %s\n", n, pod.ObjectMeta.Labels["app"])
+			i := replicas
+			for _, pod := range pods.Items {
+				if pod.Status.ContainerStatuses[0].Ready {
+					fmt.Printf("Pod %q is running\n", pod.ObjectMeta.Name)
 
-			fmt.Println()
-			fmt.Printf(" *** Spec *** \n")
-			fmt.Printf("Pod[%v].Spec.Containers[0].Name: %s\n", n, pod.Spec.Containers[0].Name)
-			fmt.Printf("Pod[%v].Spec.Containers[0].Image: %s\n", n, pod.Spec.Containers[0].Image)
-			fmt.Printf("Pod[%v].Spec.NodeName: %s\n", n, pod.Spec.NodeName)
-
-			fmt.Println()
-			fmt.Printf(" *** Status *** \n")
-			fmt.Printf("Pod[%v].Status.Phase: %v\n", n, pod.Status.Phase)
-			fmt.Printf("Pod[%v].Status.StartTime: %v\n", n, pod.Status.StartTime)
-			fmt.Printf("Pod[%v].Status.HostIP: %v\n", n, pod.Status.HostIP)
-			fmt.Printf("Pod[%v].Status.PodIP: %v\n", n, pod.Status.PodIP)
-
-			for _, condition := range pod.Status.Conditions {
-				if condition.Status == "True" {
-					fmt.Printf("Pod[%v].Status.Condition: True Status: %s\n", n, condition.Type)
+					i--
 				}
 			}
-
-			for m, containerStatus := range pod.Status.ContainerStatuses {
-				fmt.Printf("Pod[%v].Status.ContainerStatuses[%d].Name: %v\n", n, m, containerStatus.Name)
-				fmt.Printf("Pod[%v].Status.ContainerStatuses[%d].Image: %v\n", n, m, containerStatus.Image)
-				fmt.Printf("Pod[%v].Status.ContainerStatuses[%d].State: %v\n", n, m, containerStatus.State)
+			if i == int32(0) {
+				break
 			}
-			fmt.Println()
 		}
-	*/
+	}
+	fmt.Printf("All Pods of %q are running\n", resultDeployment.Name)
 
 	// Create Service
 	prompt("to create the service")
 	fmt.Println("Create Service")
-	resultService, err := servicesClient.Create(service)
+	stagingService, err := servicesClient.Create(service)
 	if err != nil {
 		panic(err)
 	}
 
 	// Deployment and services finished
 	fmt.Printf("All Pods of %q are running\n", resultDeployment.Name)
-	fmt.Printf("Created service %q.\n", resultService.Name)
+	fmt.Printf("Created service %q.\n", stagingService.Name)
 
-	prompt("")
-
-	// !!!
+	// Get Pod "kube-addon-manager-minikube" of "kube-system" to retrieve 'minikube ip'
 	pod, err := clientset.CoreV1().Pods("kube-system").Get("kube-addon-manager-minikube", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("\nPlease verify: http://%s:%v\n", pod.Status.HostIP, resultService.Spec.Ports[0].NodePort)
 
-	// Delete Deployment
-	prompt("to delete the deployment")
-	fmt.Println("Deleting deployment...")
+	fmt.Printf("\nPlease verify staging: http://%s:%v\n", pod.Status.HostIP, stagingService.Spec.Ports[0].NodePort)
+
+	// Switch production loadbalancer to staging deployment
+	prompt("to switch production loadbalancer to staging deployment")
+	fmt.Println("Switch production loadbalancer to staging deployment...")
+
+	retryErr := retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		// Retrieve the latest version of Deployment before attempting update
+		// RetryOnConflict uses exponential backoff to avoid exhausting the apiserver
+		result, getErr := servicesClient.Get("webserver-service", metav1.GetOptions{})
+		if getErr != nil {
+			panic(fmt.Errorf("Failed to get service 'webserver-service': %v", getErr))
+		}
+		result.Spec.Selector = map[string]string{
+			"app": "webserver",
+			"env": "staging",
+		}
+		_, updateErr := servicesClient.Update(result)
+		return updateErr
+	})
+	if retryErr != nil {
+		panic(fmt.Errorf("Update failed: %v", retryErr))
+	}
+	fmt.Println("Switched production loadbalancer to staging deployment")
+
+	productionService, err := servicesClient.Get("webserver-service", metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nPlease verify production: http://%s:%v\n", pod.Status.HostIP, productionService.Spec.Ports[0].NodePort)
+
+	// Switch production image to new version
+	prompt("to switch production image to new version")
+	fmt.Println("Switch production image to new version...")
+
+	retryErr = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		// Retrieve the latest version of Deployment before attempting update
+		// RetryOnConflict uses exponential backoff to avoid exhausting the apiserver
+		result, getErr := deploymentsClient.Get("webserver-prod-deployment", metav1.GetOptions{})
+		if getErr != nil {
+			panic(fmt.Errorf("Failed to get deployment 'webserver-prod-deployment': %v", getErr))
+		}
+		result.Spec.Template.Spec.Containers[0].Image = fmt.Sprint("stefanhans/webserver:", strings.TrimSpace(version))
+		_, updateErr := deploymentsClient.Update(result)
+		return updateErr
+	})
+	if retryErr != nil {
+		panic(fmt.Errorf("Update failed: %v", retryErr))
+	}
+	fmt.Printf("Switched production image to new version %q\n", strings.TrimSpace(version))
+
+
+	// Switch production loadbalancer back to production deployment
+	prompt("to switch production loadbalancer back to production deployment")
+	fmt.Println("Switch production loadbalancer back to production deployment...")
+
+	retryErr = retry.RetryOnConflict(retry.DefaultRetry, func() error {
+		// Retrieve the latest version of Deployment before attempting update
+		// RetryOnConflict uses exponential backoff to avoid exhausting the apiserver
+		result, getErr := servicesClient.Get("webserver-service", metav1.GetOptions{})
+		if getErr != nil {
+			panic(fmt.Errorf("Failed to get service 'webserver-service': %v", getErr))
+		}
+		result.Spec.Selector = map[string]string{
+			"app": "webserver",
+			"env": "production",
+		}
+		_, updateErr := servicesClient.Update(result)
+		return updateErr
+	})
+	if retryErr != nil {
+		panic(fmt.Errorf("Update failed: %v", retryErr))
+	}
+	fmt.Println("Switched production loadbalancer back to production deployment")
+
+	fmt.Printf("\nPlease verify production: http://%s:%v\n", pod.Status.HostIP, productionService.Spec.Ports[0].NodePort)
+
+	// Delete staging deployment and service
+	prompt("to delete staging deployment and service")
+	fmt.Println("Delete staging deployment and service...")
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := deploymentsClient.Delete("webserver-staging-deployment", &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
@@ -235,27 +259,24 @@ func main() {
 		panic(err)
 	}
 
-	/*
-		// Watch out for the deployment deleted...
-		fmt.Printf("Watch out for the deployment %q deleted...\n", resultDeployment.Name)
-		for evt := range watchCh {
-			if evt.Type == "DELETED" {
-				break
-			}
+	// Watch out for the deployment deleted...
+	fmt.Printf("Watch out for the deployment %q deleted...\n", resultDeployment.Name)
+	for evt := range watchCh {
+		if evt.Type == "DELETED" {
+			break
 		}
-		fmt.Printf("The deployment of %q is deleted\n", resultDeployment.Name)
-	*/
+	}
+	fmt.Printf("The deployment of %q is deleted\n", resultDeployment.Name)
 
 	// Delete Service
-	prompt("to delete the service")
-	fmt.Println("Deleting service...")
+	fmt.Println("Delete service...")
 	deletePolicy = metav1.DeletePropagationForeground
 	if err := servicesClient.Delete("staging-webserver-service", &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		panic(err)
 	}
-	fmt.Println("Deleted service.")
+	fmt.Println("Deleted")
 }
 
 func prompt(str string) {
