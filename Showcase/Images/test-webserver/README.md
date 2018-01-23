@@ -64,31 +64,31 @@ Leave production running for next step!
 
 ### Prepare Automated Test Container
 
+Prerequisites: Build Image for test container and pushed to Docker Hub
+
+    docker build -f Dockerfile.test -t stefanhans/test-webserver .
+    docker push stefanhans/test-webserver   
+
 Go: Push New Version of 'main.go' to GitHub
 
     git add main.go
     git commit -m "Test version"
-    git push
-
-
-Docker: Build Image, run Container and verify
-
-    docker build -f Dockerfile.test -t stefanhans/test-webserver .
-    docker run --rm --name test-webserver-container --publish 8080:8080 stefanhans/test-webserver
-    
-    curl http://localhost:8080
-    
-Docker: Stop Container
-
-    docker stop test-webserver-container
-    
+    git push 
     
 Docker: Build Image and push to Docker Hub
 
+    docker run --rm --name test-webserver-container --publish 8080:8080 stefanhans/test-webserver
+    
+    curl http://localhost:8080
+
+    ^Ctrl-C
+
 Choose new image tag for staging and production, respectively.
 
-    docker build -t stefanhans/webserver:1.0.3 .
-    docker push stefanhans/webserver:1.0.3
+    docker build -t stefanhans/webserver:1.0.4 .
+    docker run --rm --name test-webserver-container --publish 8080:8080 stefanhans/webserver:1.0.4
+
+    docker push stefanhans/webserver:1.0.4
 
     
 Next Step: Try out the [DevOps deployment programmed in Go](../../Deployments/dev-ops)
