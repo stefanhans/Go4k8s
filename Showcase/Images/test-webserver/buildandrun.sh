@@ -5,8 +5,8 @@ echo "curl https://raw.githubusercontent.com/stefanhans/Go4k8s/master/Showcase/I
 curl https://raw.githubusercontent.com/stefanhans/Go4k8s/master/Showcase/Images/test-webserver/main.go > main.go
 ls -l main.go
 
-echo "grep version main.go"
-grep version main.go
+echo "grep 'var version' main.go"
+grep 'var version' main.go
 
 echo "gofmt -w ."
 gofmt -w .

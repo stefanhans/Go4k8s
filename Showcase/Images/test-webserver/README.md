@@ -17,13 +17,13 @@ Kubernetes Staging: Deploy and Test
 
 Kubernetes Production: Deploy and Test
 
-    kubectl create -f DeployProdWebserver.yaml
+    kubectl create -f DeployProdWebserver.yaml --record
     
     kubectl get pods,service -l app=webserver,env=production
     kubectl logs -l app=webserver,env=production
     
-    curl http://$(minikube ip):$(kubectl get svc -l app=webserver,env=production -o jsonpath='{.items[0].spec.ports[0].nodePort}')
-    echo "http://$(minikube ip):$(kubectl get svc -l app=webserver,env=production -o jsonpath='{.items[0].spec.ports[0].nodePort}')"
+    curl http://$(minikube ip)::30001
+    echo "http://$(minikube ip)::30001
     
     
 Kubernetes: Switch Production Loadbalancer to Staging Deployment
@@ -64,16 +64,28 @@ Leave production running for next step!
 
 ### Prepare Automated Test Container
 
-Prerequisites: Build Image for test container and pushed to Docker Hub
+Prerequisites: 
+
+Build Image for test container and pushed to Docker Hub
 
     docker build -f Dockerfile.test -t stefanhans/test-webserver .
-    docker push stefanhans/test-webserver   
+    docker push stefanhans/test-webserver  
+    
+Kubernetes Production: Deploy and Test
+
+    kubectl create -f DeployProdWebserver.yaml --record 
+    
+    kubectl get pods,service -l app=webserver,env=production
+    
+    curl http://$(minikube ip):30001
+    
 
 Go: Push New Version of 'main.go' to GitHub
 
     git add main.go
     git commit -m "Test version"
     git push 
+    
     
 Docker: Test Image, build, and push to Docker Hub
 

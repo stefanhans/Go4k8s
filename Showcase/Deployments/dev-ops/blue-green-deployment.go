@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
 
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
@@ -116,10 +117,9 @@ func main() {
 	// Start watching the client for deployments
 	fmt.Println("Start watching the client for deployments")
 	deploymentWatch, err := deploymentsClient.Watch(metav1.ListOptions{})
-	watchCh := deploymentWatch.ResultChan()
+	deploymentWatchCh := deploymentWatch.ResultChan()
 
 	// Create Deployment
-	prompt("to create the deployment")
 	fmt.Println("Create Deployment")
 	resultDeployment, err := deploymentsClient.Create(deployment)
 	if err != nil {
@@ -130,7 +130,7 @@ func main() {
 
 	// Watch out for all Pods running...
 	fmt.Printf("Watch out for all Pods of %q running...\n", resultDeployment.Name)
-	for evt := range watchCh {
+	for evt := range deploymentWatchCh {
 		if evt.Type == "MODIFIED" {
 			pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
 				LabelSelector: "env=staging",
@@ -155,7 +155,6 @@ func main() {
 	fmt.Printf("All Pods of %q are running\n", resultDeployment.Name)
 
 	// Create Service
-	prompt("to create the service")
 	fmt.Println("Create Service")
 	stagingService, err := servicesClient.Create(service)
 	if err != nil {
@@ -172,7 +171,13 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("\nPlease verify staging: http://%s:%v\n", pod.Status.HostIP, stagingService.Spec.Ports[0].NodePort)
+	// Get Service 'webserver-service'
+	productionService, err := servicesClient.Get("webserver-service", metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("\nDuring the next steps please control production http://%s:%v ", pod.Status.HostIP, productionService.Spec.Ports[0].NodePort)
+	fmt.Printf("and staging http://%s:%v\n", pod.Status.HostIP, stagingService.Spec.Ports[0].NodePort)
 
 	// Switch production loadbalancer to staging deployment
 	prompt("to switch production loadbalancer to staging deployment")
@@ -197,11 +202,24 @@ func main() {
 	}
 	fmt.Println("Switched production loadbalancer to staging deployment")
 
-	productionService, err := servicesClient.Get("webserver-service", metav1.GetOptions{})
-	if err != nil {
-		panic(err)
+	fmt.Printf("\n *** This takes a while until the TCP connection is closed *** \n")
+
+	// Wait until TCP connection is closed
+	cmd1 := "netstat -t -4 | grep 30001 | grep -c ESTABLISHED"
+	cmd2 := "netstat -t -4 | grep 30001"
+
+	for {
+		out1, _ := exec.Command("bash","-c",cmd1).Output()
+		out2, _ := exec.Command("bash","-c",cmd2).Output()
+
+		if string(out1) == "0\n" {
+			break
+		}
+
+		fmt.Printf("\r%s", strings.TrimSuffix(string(out2), "\n"))
+		time.Sleep(500 * time.Millisecond)
 	}
-	fmt.Printf("\nPlease verify production: http://%s:%v\n", pod.Status.HostIP, productionService.Spec.Ports[0].NodePort)
+	fmt.Println()
 
 	// Switch production image to new version
 	prompt("to switch production image to new version")
@@ -247,7 +265,6 @@ func main() {
 	}
 	fmt.Println("Switched production loadbalancer back to production deployment")
 
-	fmt.Printf("\nPlease verify production: http://%s:%v\n", pod.Status.HostIP, productionService.Spec.Ports[0].NodePort)
 
 	// Delete staging deployment and service
 	prompt("to delete staging deployment and service")
@@ -261,7 +278,7 @@ func main() {
 
 	// Watch out for the deployment deleted...
 	fmt.Printf("Watch out for the deployment %q deleted...\n", resultDeployment.Name)
-	for evt := range watchCh {
+	for evt := range deploymentWatchCh {
 		if evt.Type == "DELETED" {
 			break
 		}
