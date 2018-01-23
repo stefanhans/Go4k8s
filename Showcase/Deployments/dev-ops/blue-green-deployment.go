@@ -24,6 +24,7 @@ func main() {
 
 	// Number of replicas
 	replicas := int32(2)
+	fmt.Printf("Number of replica configured: %d", replicas)
 
 	fmt.Println()
 
@@ -125,7 +126,6 @@ func main() {
 		panic(err)
 	}
 
-
 	time.Sleep(time.Second)
 
 	// Watch out for all Pods running...
@@ -221,7 +221,7 @@ func main() {
 	if retryErr != nil {
 		panic(fmt.Errorf("Update failed: %v", retryErr))
 	}
-	fmt.Printf("Switched production image to new version %q\n", strings.TrimSpace(version))
+	fmt.Printf("Switched production image to new version %q\n", strings.TrimSuffix(version, "\n"))
 
 
 	// Switch production loadbalancer back to production deployment

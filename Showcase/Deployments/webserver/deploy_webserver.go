@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	appsv1beta1 "k8s.io/api/apps/v1beta1"
 	apiv1 "k8s.io/api/core/v1"
@@ -35,6 +36,8 @@ func main() {
 		fmt.Printf("Config.Host %q is secure!\n", config.Host)
 	}
 
+	fmt.Println()
+
 	// Create Clientset
 	fmt.Println("Create Clientset")
 	clientset, err := kubernetes.NewForConfig(config)
@@ -42,11 +45,7 @@ func main() {
 		panic(err)
 	}
 
-	// !!!
-	pod, err := clientset.CoreV1().Pods("kube-system").Get("kube-addon-manager-minikube", metav1.GetOptions{})
-	if err != nil {
-		panic(err)
-	}
+	fmt.Println()
 
 	// Create Client for Deployments
 	fmt.Println("Create Client for Deployments")
@@ -64,6 +63,7 @@ func main() {
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
 						"app": "webserver",
+						"env": "playing",
 					},
 				},
 				Spec: apiv1.PodSpec{
@@ -78,22 +78,26 @@ func main() {
 		},
 	}
 
+	fmt.Println()
+
 	// Create Client for Services
 	fmt.Println("Create Client for Services")
 	servicesClient := clientset.CoreV1().Services(apiv1.NamespaceDefault)
 
-	// Define Service
+	// Define Service or Loadbalancer, respectively
 	fmt.Println("Define Service")
 	service := &apiv1.Service{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "webserver-service",
+			Name: "playing-webserver-service",
 			Labels: map[string]string{
 				"app": "webserver",
+				"env": "playing",
 			},
 		},
 		Spec: apiv1.ServiceSpec{
 			Selector: map[string]string{
 				"app": "webserver",
+				"env": "playing",
 			},
 			Ports: []apiv1.ServicePort{
 				{
@@ -104,6 +108,8 @@ func main() {
 			Type: apiv1.ServiceTypeLoadBalancer,
 		},
 	}
+
+	fmt.Println()
 
 	// Start watching the client for deployments
 	fmt.Println("Start watching the client for deployments")
@@ -118,12 +124,14 @@ func main() {
 		panic(err)
 	}
 
+	time.Sleep(time.Second)
+
 	// Watch out for all Pods running...
 	fmt.Printf("Watch out for all Pods of %q running...\n", resultDeployment.Name)
 	for evt := range watchCh {
 		if evt.Type == "MODIFIED" {
 			pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{
-				LabelSelector: "app=webserver",
+				LabelSelector: "env=playing",
 			})
 			if err != nil {
 				panic(err)
@@ -149,12 +157,15 @@ func main() {
 
 	// Get list of pods
 	fmt.Println("Get list of pods")
-	podList, err := clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{})
+	podList, err := clientset.CoreV1().Pods(apiv1.NamespaceDefault).List(metav1.ListOptions{
+		LabelSelector: "env=playing",
+	})
 	if err != nil {
 		panic(err)
 	}
 
 	fmt.Println("Get pods' description in json")
+	fmt.Println()
 	for n, pod := range podList.Items {
 		b, err := json.MarshalIndent(&pod, fmt.Sprintf("%d:", n), "  ")
 		if err != nil {
@@ -214,10 +225,15 @@ func main() {
 	fmt.Printf("All Pods of %q are running\n", resultDeployment.Name)
 	fmt.Printf("Created service %q.\n", resultService.Name)
 
+	// Get Pod "kube-addon-manager-minikube" of "kube-system" to retrieve 'minikube ip'
+	pod, err := clientset.CoreV1().Pods("kube-system").Get("kube-addon-manager-minikube", metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
 	fmt.Printf("\nPlease verify: http://%s:%v\n", pod.Status.HostIP, resultService.Spec.Ports[0].NodePort)
 
 	// Delete Deployment
-	prompt("to delete the deployment")
+	prompt("to delete deployment and service")
 	fmt.Println("Deleting deployment...")
 	deletePolicy := metav1.DeletePropagationForeground
 	if err := deploymentsClient.Delete("webserver-deployment", &metav1.DeleteOptions{
@@ -236,10 +252,9 @@ func main() {
 	fmt.Printf("The deployment of %q is deleted\n", resultDeployment.Name)
 
 	// Delete Service
-	prompt("to delete the service")
 	fmt.Println("Deleting service...")
 	deletePolicy = metav1.DeletePropagationForeground
-	if err := servicesClient.Delete("webserver-service", &metav1.DeleteOptions{
+	if err := servicesClient.Delete("playing-webserver-service", &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		panic(err)
@@ -248,7 +263,8 @@ func main() {
 }
 
 func prompt(str string) {
-	fmt.Printf("\n-> Press Return key %s", str)
+	fmt.Println()
+	fmt.Printf("-> Press Return key %s", str)
 	scanner := bufio.NewScanner(os.Stdin)
 	for scanner.Scan() {
 		break
