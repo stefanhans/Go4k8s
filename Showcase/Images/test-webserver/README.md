@@ -75,19 +75,17 @@ Go: Push New Version of 'main.go' to GitHub
     git commit -m "Test version"
     git push 
     
-Docker: Build Image and push to Docker Hub
+Docker: Test Image, build, and push to Docker Hub
 
     docker run --rm --name test-webserver-container --publish 8080:8080 stefanhans/test-webserver
     
     curl http://localhost:8080
 
-    ^Ctrl-C
+    docker stop test-webserver-container
 
 Choose new image tag for staging and production, respectively.
 
     docker build -t stefanhans/webserver:1.0.4 .
-    docker run --rm --name test-webserver-container --publish 8080:8080 stefanhans/webserver:1.0.4
-
     docker push stefanhans/webserver:1.0.4
 
     
