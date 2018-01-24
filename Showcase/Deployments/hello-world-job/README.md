@@ -1,6 +1,6 @@
 Prerequisites: Tested [hello-world image](../../Images/hello-world).
 
-Take yaml file as guideline:
+Take [a appropriate yaml](https://kubernetes.io/docs/concepts/workloads/controllers/jobs-run-to-completion/#running-an-example-job) file as guideline:
 
     apiVersion: batch/v1
     kind: Job
