@@ -12,7 +12,7 @@ Take yaml file as guideline:
           containers:
           - name: hello-world
             image: stefanhans/hello-world
-            command: ["/hello-world"]
+            command: ["/hello-world"] # not needed - will be started automatically
           restartPolicy: Never
       backoffLimit: 4
 
@@ -24,5 +24,5 @@ Build and run Go executable
     
 Investigating...
 
-    kubectl get all -l app=hello-world-job
-    kubectl logs -l app=hello-world-job
+    kubectl get all -l app=hello-world
+    kubectl logs -l app=hello-world

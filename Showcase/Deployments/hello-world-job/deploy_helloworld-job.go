@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
+	apibatchv1 "k8s.io/api/batch/v1"
 	apiv1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	batchv1 "k8s.io/api/batch/v1"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
@@ -32,25 +32,25 @@ func main() {
 
 
 	// Define Job
-	job := &batchv1.Job{
+	job := &apibatchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "hello-world-job",
 		},
-		Spec: batchv1.JobSpec{
+		Spec: apibatchv1.JobSpec{
 			Template: apiv1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{
 					Labels: map[string]string{
-						"app": "hello-world-job",
+						"app": "hello-world",
 					},
 				},
 				Spec: apiv1.PodSpec{
-					RestartPolicy: apiv1.RestartPolicyNever,
 					Containers: []apiv1.Container{
 						{
 							Name:  "hello-world",
 							Image: "stefanhans/hello-world",
 						},
 					},
+					RestartPolicy: apiv1.RestartPolicyNever,
 				},
 			},
 			BackoffLimit: int32Ptr(4),
