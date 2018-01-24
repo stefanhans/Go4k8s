@@ -30,9 +30,8 @@ func main() {
 	// Create Client for Deployments
 	deploymentsClient := clientset.AppsV1beta1().Deployments(apiv1.NamespaceDefault)
 
-
 	// Define Deployment
-	deployment := &appsv1beta1.Deployment{
+	deploymentsDefinition := &appsv1beta1.Deployment{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: "hello-world-deployment",
 		},
@@ -58,11 +57,11 @@ func main() {
 
 	// Create Deployment
 	fmt.Printf("\nCreating deployment...\n")
-	result, err := deploymentsClient.Create(deployment)
+	deployment, err := deploymentsClient.Create(deploymentsDefinition)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("\nCreated deployment %q.\n", result.GetObjectMeta().GetName())
+	fmt.Printf("\nCreated deployment %q.\n", deployment.GetObjectMeta().GetName())
 
 	// Delete Deployment
 	prompt()

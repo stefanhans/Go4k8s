@@ -34,7 +34,7 @@ func main() {
 	// Define Job
 	job := &apibatchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "hello-world-job",
+			Name: "hello-world",
 		},
 		Spec: apibatchv1.JobSpec{
 			Template: apiv1.PodTemplateSpec{
@@ -69,7 +69,7 @@ func main() {
 	prompt()
 	fmt.Println("Deleting job...")
 	deletePolicy := metav1.DeletePropagationForeground
-	if err := jobsClient.Delete("hello-world-job", &metav1.DeleteOptions{
+	if err := jobsClient.Delete("hello-world", &metav1.DeleteOptions{
 		PropagationPolicy: &deletePolicy,
 	}); err != nil {
 		panic(err)
