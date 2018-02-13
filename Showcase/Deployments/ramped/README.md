@@ -11,6 +11,7 @@ Check deployment: `kubectl get all -l app=my-app`
 Open in browser `minikube service my-app --url`
 
 Set <ip:port>: `service=$(minikube service my-app --url)`
+
 Watch app in another terminal: `while sleep 0.5; do curl -s "$service" | grep Version; done`
 
 Watch pods in another terminal: `watch kubectl get pods -l app=my-app`
@@ -22,9 +23,9 @@ Cleanup: `kubectl delete all -l app=my-app`
 
 Optional:
 
-`kubectl rollout undo deploy my-app
-kubectl rollout pause deploy my-app
-kubectl rollout resume deploy my-app`
+`kubectl rollout undo deploy my-app`
+`kubectl rollout pause deploy my-app`
+`kubectl rollout resume deploy my-app`
 
 
 
