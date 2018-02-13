@@ -23,9 +23,11 @@ Cleanup: `kubectl delete all -l app=my-app`
 
 Optional:
 
-`kubectl rollout undo deploy my-app`
-`kubectl rollout pause deploy my-app`
-`kubectl rollout resume deploy my-app`
+Rollback: `kubectl rollout undo deploy my-app`
+
+Pause: `kubectl rollout pause deploy my-app`
+
+Resume: `kubectl rollout resume deploy my-app`
 
 
 
