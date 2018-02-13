@@ -29,5 +29,10 @@ Pause: `kubectl rollout pause deploy my-app`
 
 Resume: `kubectl rollout resume deploy my-app`
 
+### 2. Encapsulate Initial Deployment by k8s/client-go in Docker container
+
+Explore `kubectl --v=10 create -f app-v1.yaml > app-v1.out 2>&1`
+
+
 
 
