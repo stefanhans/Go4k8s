@@ -14,4 +14,4 @@ All is hardcoded to the [GitHub](https://github.com/stefanhans) and [Docker Hub]
 
 [Deployment Strategies](https://github.com/ContainerSolutions/k8s-deployment-strategies)
 
-- ramped: release a new version on a rolling update fashion, one after the other
+### ramped: release a new version on a rolling update fashion, one after the other
