@@ -4,9 +4,27 @@ Using [test-webserver](https://github.com/stefanhans/Go4k8s/tree/master/Showcase
 
 ### 1. Do the ramped deployment manually
 
-`kubectl apply -f app-v1.yaml`
+Initial deployment: `kubectl apply -f app-v1.yaml`
 
-`kubectl apply -f app-v1.yaml`
+Check deployment: `kubectl get all -l app=my-app`
 
-`kubectl apply -f app-v1.yaml`
+Open in browser `minikube service my-app --url`
+
+Set <ip:port>: `service=$(minikube service my-app --url)`
+Watch app in another terminal: `while sleep 0.5; do curl -s "$service" | grep Version; done`
+
+Watch pods in another terminal: `watch kubectl get pods -l app=my-app`
+
+Rolling Update: `kubectl apply -f app-v2.yaml`
+
+Cleanup: `kubectl delete all -l app=my-app`
+
+
+Optional:
+
+`kubectl rollout undo deploy my-app
+kubectl rollout pause deploy my-app
+kubectl rollout resume deploy my-app`
+
+
 

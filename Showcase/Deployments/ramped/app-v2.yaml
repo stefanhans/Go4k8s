@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
       - name: webserver
-        image: stefanhans/webserver:1.0.0
+        image: stefanhans/webserver:1.0.1
         ports:
         - containerPort: 8080
