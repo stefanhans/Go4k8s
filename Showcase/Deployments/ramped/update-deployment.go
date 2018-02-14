@@ -21,7 +21,7 @@ import (
 func main() {
 
 	// TODO: Prepare '-f <yamlfile>
-	yamlFilename := "app-v1.yaml"
+	yamlFilename := "app-v2.yaml"
 
 
 	// *********************************
@@ -90,54 +90,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	//fmt.Printf("type Deployment struct: %#v\n", deployment)
-
-
-	// *********************************
-	fmt.Println("Decode service from YAML to JSON")
-
-	// Read second resource - expecting service with size < 1024
-	// TODO: handle size expectations programmatically
-	yamlService := make([]byte, 1024)
-	_, err = yamlDecoder.Read(yamlService)
-	if err != nil {
-		panic(err)
-	}
-
-	// Trim unnecessary trailing 0x0 signs which are not accepted
-	TrimmedYamlService := strings.TrimRight(string(yamlService), string((byte(0))))
-	//fmt.Println("\n####### TrimmedYamlService #####\n\n\n", TrimmedYamlService)
-
-	// Decode service resource from YAML to JSON
-	jsonService, _, err := decode([]byte(TrimmedYamlService), nil, nil)
-	if err != nil {
-		panic(err)
-	}
-	//fmt.Printf("\n####### jsonService ######\n%#v\n", jsonService)
-
-	// Check "kind: service"
-	if jsonService.GetObjectKind().GroupVersionKind().Kind != "Service" {
-		panic(fmt.Sprintf("\n####### N0 \"Kind: Service\" ######\n%#v\n", jsonService))
-	}
-
-	// Marshall JSON Service
-	s, err := json.Marshal(&jsonService)
-	if err != nil {
-		panic(err)
-	}
-	//fmt.Printf("\n###### Indent JSON without empty items #####\n%s\n\n", string(s))
-
-
-	// *********************************
-	fmt.Println("Define Service")
-
-	// Unmarshall JSON into Service struct
-	var service corev1.Service
-	err = json.Unmarshal(s, &service)
-	if err != nil {
-		panic(err)
-	}
-	//fmt.Printf("type Service struct: %#v\n", service)
+	fmt.Printf("type Deployment struct: %#v\n", deployment)
 
 
 	// *********************************
@@ -163,34 +116,47 @@ func main() {
 
 	deploymentsClient := clientset.AppsV1beta1().Deployments(corev1.NamespaceDefault)
 
-
-	// *********************************
-	fmt.Println("Create Client for Services")
-
-	servicesClient := clientset.CoreV1().Services(corev1.NamespaceDefault)
-
-
-	// *********************************
-	fmt.Println("Create Deployment")
-
-	createdDeployment, err := deploymentsClient.Create(&deployment)
+	/*
+	// Get deployment name
+	runningDeployment, err := deploymentsClient.Get("my-app", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Watch out for all Pods of %q running...\n", createdDeployment.Name)
+	*/
+
+
+
+
+	/*
+	if jsonDeployment.GetObjectKind().GroupVersionKind().Kind != "Deployment" {
+		panic(fmt.Sprintf("\n####### N0 \"Kind: Deployment\" ######\n%#v\n", jsonDeployment))
+	}
+	*/
+
+
 
 
 	// *********************************
-	fmt.Println("Create Service")
+	fmt.Println("Update Deployment")
 
-	createdService, err := servicesClient.Create(&service)
+	updatedDeployment, err := deploymentsClient.Update(&deployment)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("Watch out for the Service of %q running...\n", createdService.Name)
+	fmt.Printf("Watch out for all Pods of %q running...\n", updatedDeployment.Name)
 
 	// Get Pod "kube-addon-manager-minikube" of "kube-system" to retrieve 'minikube ip'
 	pod, err := clientset.CoreV1().Pods("kube-system").Get("kube-addon-manager-minikube", metav1.GetOptions{})
+	if err != nil {
+		panic(err)
+	}
+
+
+	// *********************************
+	fmt.Println("Get running service")
+
+	servicesClient := clientset.CoreV1().Services(corev1.NamespaceDefault)
+	createdService, err := servicesClient.Get("my-app", metav1.GetOptions{})
 	if err != nil {
 		panic(err)
 	}

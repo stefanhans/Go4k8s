@@ -36,9 +36,19 @@ Pause: `kubectl rollout pause deploy my-app`
 
 Resume: `kubectl rollout resume deploy my-app`
 
-### 2. Encapsulate Initial Deployment by k8s/client-go in Docker container
+### 2. create-deployment.go
 
-Explore `kubectl --v=10 create -f app-v1.yaml > app-v1.out 2>&1`
+Takes app-v1.yaml with deployment and service resources and starts them up accordingly.
+
+
+### 3. update-deployment.go
+
+Takes app-v2.yaml file with a deployment resource and updates it accordingly.
+
+
+### 4. deploy_my-app.go
+
+Combine create- and update-deployment.go and add '-f <yaml-file>'
 
 
 
