@@ -50,6 +50,13 @@ Takes app-v2.yaml file with a deployment resource and updates it accordingly.
 
 Combine create- and update-deployment.go and add '-f <yaml-file>'
 
+### 5. prepare.go
+
+In the initial YAML file replace the variable configuration part with {{.<variablename>}}, e.g. {{.VERSION}} and
+create a YAML file for update related variable changes
+
+
+
 
 
 
