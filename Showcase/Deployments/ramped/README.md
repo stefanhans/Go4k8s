@@ -55,8 +55,26 @@ Combine create- and update-deployment.go and add '-f <yaml-file>'
 In the initial YAML file replace the variable configuration part with {{.<variablename>}}, e.g. {{.VERSION}} and
 create a YAML file for update related variable changes
 
+### 6. update.go
 
+After completion of the YAML file for the update enhance accordingly
 
+### 7. ramped-inside-the-cluster
 
+`cp update.go deployment.yaml update.yaml ../ramped-inside-the-cluster`
+
+Preparation for docker image, i.e.
+
+`
+	config, err := rest.InClusterConfig()
+
+`
+instead of
+
+`
+
+	config, err := clientcmd.BuildConfigFromFlags("", "/home/stefan/.kube/config")
+
+`
 
 

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: webserver
-        image: stefanhans/webserver:{{.VERSION}}
+        image: stefanhans/webserver:{{.Version}}
         ports:
         - containerPort: 8080
 ---
@@ -32,5 +32,5 @@ spec:
   ports:
   - protocol: TCP
     port: 8080
-    nodePort: {{.NODEPORT}}
+    nodePort: 30001
   type: LoadBalancer
