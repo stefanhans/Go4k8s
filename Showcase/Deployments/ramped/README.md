@@ -61,14 +61,11 @@ After completion of the YAML file for the update enhance accordingly
 
 ### 7. ramped-inside-the-cluster
 
-`cp update.go deployment.yaml update.yaml ../ramped-inside-the-cluster`
+    cp update.go deployment.yaml update.yaml ../ramped-inside-the-cluster
 
 Preparation for docker image, i.e. use
 
-`
-	config, err := rest.InClusterConfig()
-
-`
+    config, err := rest.InClusterConfig()
 
 instead of
 
