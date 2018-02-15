@@ -78,4 +78,13 @@ instead of
 
 `
 
+`GOOS=linux go build -o ./app .`
+
+`
+cat >Dockerfile <<EOF
+FROM debian
+COPY ["./app", "./deployment.yaml", "update.yaml"", "/app"]
+ENTRYPOINT /app
+EOF
+`
 
