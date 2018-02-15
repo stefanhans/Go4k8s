@@ -69,19 +69,15 @@ Preparation for docker image, i.e. use
 
 instead of
 
-`
+    config, err := clientcmd.BuildConfigFromFlags("", "/home/stefan/.kube/config")
 
-	config, err := clientcmd.BuildConfigFromFlags("", "/home/stefan/.kube/config")
+    GOOS=linux go build -o ./app .
 
-`
 
-`GOOS=linux go build -o ./app .`
+    cat >Dockerfile <<EOF
+    FROM debian
+    COPY ["./app", "./deployment.yaml", "update.yaml"", "/app"]
+    ENTRYPOINT /app
+    EOF
 
-`
-cat >Dockerfile <<EOF
-FROM debian
-COPY ["./app", "./deployment.yaml", "update.yaml"", "/app"]
-ENTRYPOINT /app
-EOF
-`
 
