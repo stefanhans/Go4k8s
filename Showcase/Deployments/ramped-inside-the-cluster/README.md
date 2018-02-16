@@ -39,6 +39,18 @@ build image
 
 push image as needed
 
+    cat >update.bash <<EOF
+
+    kubectl create -f update_job.yaml
+
+    while [ "$(kubectl get jobs update-job -o jsonpath='{.status.active}')" != "" ]
+    do
+        sleep 1
+    done
+
+    kubectl delete -f update_job.yaml
+    EOF
+
 run docker container
 
     kubectl run --rm -i demo --image=update-in-cluster --image-pull-policy=Never
