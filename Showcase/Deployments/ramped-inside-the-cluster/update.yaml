@@ -1,0 +1,4 @@
+apiVersion: experimental
+kind: DynamicYaml
+name: my-app
+version: 1.0.0

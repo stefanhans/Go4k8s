@@ -79,19 +79,19 @@ create Dockerfile
 
     cat >Dockerfile <<EOF
     FROM debian
-    COPY ["./app", "./deployment.yaml", "update.yaml", "/app/"]
+    COPY ["./app", "./deployment.yaml", "update.yaml", "~/.kube/config", "/app/"]
     ENTRYPOINT /app
     EOF
 
 build image
 
-    docker build -t update-in-cluster .
+    docker build -t update-out-cluster .
 
 push image as needed
 
 run docker container
 
-    kubectl run --rm -i demo --image=update-in-cluster --image-pull-policy=Never
+    kubectl run --rm -i demo --image=update-out-cluster --image-pull-policy=Never
 
 
     kubectl exec -it demo -- /bin/bash
