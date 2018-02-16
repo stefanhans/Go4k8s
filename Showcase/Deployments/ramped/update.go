@@ -43,11 +43,16 @@ func main() {
 	var deploymentName string
 	flag.StringVar(&deploymentName, "d", "deployment", "Name of the deployment")
 
+	// Read name of update yaml file
+	var updateYamlFileName string
+	flag.StringVar(&updateYamlFileName, "u", "update.yaml", "Name of the update yaml file")
+
 	// Parse commandline parameter
 	flag.Parse()
 
+	// Read update yaml file
 	updateData := UpdateData{}
-	b, err := ioutil.ReadFile("update.yaml")
+	b, err := ioutil.ReadFile(updateYamlFileName)
 	if err != nil {
 		panic(err)
 	}

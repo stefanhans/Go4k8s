@@ -57,41 +57,48 @@ create a YAML file for update related variable changes
 
 ### 6. update.go
 
-After completion of the YAML file for the update enhance accordingly
+After completion of the YAML file for the update enhance accordingly do a test run
 
-### 7. ramped-inside-the-cluster
+    go run update.go
 
-    cp update.go deployment.yaml update.yaml ../ramped-inside-the-cluster
+then create other YAML update files and edit them accordingly - 1.0.0 is green, 1.0.1 is blue, 1.0.2 is yellow, 1.0.3 is red
 
-Preparation for docker image, i.e. use
+    for i in g b y r
+    do
+    cp update.yaml update_${i}.yaml
+    vi update_${i}.yaml
+    done
 
-    config, err := rest.InClusterConfig()
+Pull the images from stefanhans/webserver as needed
 
-instead of
 
-    config, err := clientcmd.BuildConfigFromFlags("", "/home/stefan/.kube/config")
+
+
+### 7. Build updating app
 
 build app
 
-    GOOS=linux go build -o ./app .
-
-create Dockerfile
-
-    cat >Dockerfile <<EOF
-    FROM debian
-    COPY ["./app", "./deployment.yaml", "update.yaml", "/app/"]
-    ENTRYPOINT /app
-    EOF
-
-build image
-
-    docker build -t update-in-cluster .
-
-push image as needed
-
-run docker container
-
-    kubectl run --rm -i demo --image=update-in-cluster --image-pull-policy=Never
+    GOOS=linux go build -o ./updater .
 
 
-    kubectl exec -it demo -- /bin/bash
+Play with it, e.g.
+
+    ./updater -u update_b.yaml
+
+Use image caching if possible
+
+
+### 8. Containerize the update
+
+for running outside a cluster
+
+    cd ../ramped-outside-the cluster
+
+for running inside a cluster
+
+    cd ../ramped-inside-the cluster
+
+
+
+
+    ./updater
