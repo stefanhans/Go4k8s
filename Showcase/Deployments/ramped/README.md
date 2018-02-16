@@ -97,8 +97,3 @@ for running outside a cluster
 for running inside a cluster
 
     cd ../ramped-inside-the cluster
-
-
-
-
-    ./updater
