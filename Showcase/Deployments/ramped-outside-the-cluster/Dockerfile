@@ -1,3 +1,3 @@
 FROM debian
-COPY ["./app", "./deployment.yaml", "update.yaml", "~/.kube/config", "/"]
+COPY ["./app", "./deployment.yaml", "update.yaml", "./config", "/"]
 ENTRYPOINT /app
