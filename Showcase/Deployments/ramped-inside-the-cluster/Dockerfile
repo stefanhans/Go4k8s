@@ -1,3 +1,3 @@
 FROM debian
-COPY ["./app", "./deployment.yaml", "update.yaml", "/"]
-ENTRYPOINT /app
+COPY ["./deploy", "./deployment.yaml", "update.yaml", "/"]
+ENTRYPOINT /deploy

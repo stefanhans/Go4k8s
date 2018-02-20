@@ -1,3 +1,5 @@
+[![asciicast](https://asciinema.org/a/164243.png)](https://asciinema.org/a/164243)
+
 ### Work In Progress
 
 [![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/stefanhans/Go4k8s/blob/master/LICENSE)
@@ -35,13 +37,13 @@ create Dockerfile
 
 build image
 
-    docker build -t update-in-cluster .
+    docker build -t update-in-cluster:1.0.0 .
 
 push image as needed
 
 create wrapper for deleting inactive job
 
-    cat >update.bash <<EOF
+    cat >deploy.bash <<EOF
     kubectl create -f update_job.yaml
 
     while [ "$(kubectl get jobs update-job -o jsonpath='{.status.active}')" != "" ]
@@ -53,8 +55,10 @@ create wrapper for deleting inactive job
     kubectl delete -f update_job.yaml
     EOF
 
-    chmod +x update.bash
+    chmod +x deploy.bash
 
 run wrapper
 
-    ./update.bash
+eval $(minikube docker-env)
+
+    ./deploy.bash

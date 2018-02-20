@@ -10,7 +10,7 @@ spec:
     spec:
       containers:
       - name: update-job
-        image: stefanhans/update-in-cluster:1.0.0
+        image: stefanhans/update-in-cluster:1.0.1
         # command: ["/app"]
         # args: [""]
       # Do not restart containers after they exit
