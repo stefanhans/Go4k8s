@@ -17,8 +17,8 @@ import (
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
-	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/util/homedir"
 )
 
 // UpdateData is used for the values to be updated - WIP
@@ -27,6 +27,13 @@ type UpdateData struct {
 }
 
 func main() {
+	var kubeconfig *string
+	if home := homedir.HomeDir(); home != "" {
+		kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
+	} else {
+		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
+	}
+	flag.Parse()
 
 	// Read '-f <yamlfile>'
 	var yamlFilename string
@@ -41,7 +48,6 @@ func main() {
 
 	updateData := UpdateData{
 		Version: os.Getenv("PLUGIN_VERSION"),
-		//Version: "1.0.0",
 	}
 
 	fmt.Printf("%#v\n", updateData)
@@ -182,11 +188,10 @@ func main() {
 	// *********************************
 	fmt.Println("Build Config")
 
-	config, err := rest.InClusterConfig()
+	config, err := clientcmd.BuildConfigFromFlags("", "/config")
 	if err != nil {
-		fmt.Printf("Error 'rest.InClusterConfig()': %s\nUse instead: .kube/config\n", err)
-		//config, err = clientcmd.BuildConfigFromFlags("", "/home/stefan/.kube/config")
-		config, err = clientcmd.BuildConfigFromFlags("", "/config")
+		fmt.Printf("Error 'clientcmd.BuildConfigFromFlags': %s\nUse instead: ~/.kube/config\n", err)
+		config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
 		if err != nil {
 			panic(err)
 		}
