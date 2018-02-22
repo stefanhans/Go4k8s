@@ -5,9 +5,13 @@
 This scenario is using or can use, respectively, the following images from docker hub:
 
 stefanhans/webserver:1.0.0 (green)
+
 stefanhans/webserver:1.0.1 (blue)
+
 stefanhans/webserver:1.0.2 (yellow)
+
 stefanhans/webserver:1.0.3 (red)
+
 stefanhans/webserver:1.0.4 (gray)
 
 All images are simply presenting one webpage and the versions change mainly the background color.
