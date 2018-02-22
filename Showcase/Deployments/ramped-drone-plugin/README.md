@@ -1,5 +1,10 @@
 ### Work In Progress
 
+A k8s deployment and service are specified in deployment.yaml. Here, the version of the container images is `{{.VERSION}}`
+which will later be replaced by the value of the environment variable `PLUGIN_VERSION`.
+
+The executable starts deployment and service initially and updates them accordingly if the called later.
+
 <a href="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi" target="_blank"><img src="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi.png" /></a>
 
 This scenario is using or can use, respectively, the following images from docker hub:
@@ -27,6 +32,8 @@ Set the version and test (does the initial deployment)
     export PLUGIN_VERSION=1.0.0
     chmod +x update
     ./update
+
+Edit the deployment.yaml (or don't)
 
 Copy all files according to the Dockerfile, i.e. config, ca.crt, client.crt, client.key
 
