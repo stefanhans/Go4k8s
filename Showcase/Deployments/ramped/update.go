@@ -9,8 +9,6 @@ import (
 
 	yamlv2 "gopkg.in/yaml.v2"
 
-
-
 	"encoding/json"
 	"path/filepath"
 	"strings"
@@ -23,14 +21,13 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/clientcmd"
-
 )
 
 type UpdateData struct {
 	ApiVersion string
-	Kind string
-	Name string
-	Version string
+	Kind       string
+	Name       string
+	Version    string
 }
 
 func main() {
@@ -64,7 +61,6 @@ func main() {
 	}
 
 	fmt.Printf("%#v\n", updateData)
-
 
 	y, err := ioutil.ReadFile("deployment.yaml")
 	if err != nil {
