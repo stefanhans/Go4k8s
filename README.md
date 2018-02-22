@@ -22,3 +22,7 @@ The [Examples directory](./Examples) serves as playground with the official exam
   godoc -http=:6060 -index -index_files index.file
   or
   godoc -index -index_files index.file -q ServiceInterface
+
+### Further Use
+
+Under Showcase/Deployments you find some directories related to drone plugin development.
