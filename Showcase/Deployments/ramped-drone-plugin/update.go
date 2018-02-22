@@ -21,7 +21,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
-// UpdateData
+// UpdateData is used for the values to be updated - WIP
 type UpdateData struct {
 	Version string
 }

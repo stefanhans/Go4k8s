@@ -23,7 +23,7 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-// UpdateData
+// UpdateData is used for the values to be updated - WIP
 type UpdateData struct {
 	ApiVersion string
 	Kind       string
