@@ -209,8 +209,8 @@ func main() {
 	cmd2 := "netstat -t -4 | grep 30001"
 
 	for {
-		out1, _ := exec.Command("bash","-c",cmd1).Output()
-		out2, _ := exec.Command("bash","-c",cmd2).Output()
+		out1, _ := exec.Command("bash", "-c", cmd1).Output()
+		out2, _ := exec.Command("bash", "-c", cmd2).Output()
 
 		if string(out1) == "0\n" {
 			break
@@ -241,7 +241,6 @@ func main() {
 	}
 	fmt.Printf("Switched production image to new version %q\n", strings.TrimSuffix(version, "\n"))
 
-
 	// Switch production loadbalancer back to production deployment
 	prompt("to switch production loadbalancer back to production deployment")
 	fmt.Println("Switch production loadbalancer back to production deployment...")
@@ -264,7 +263,6 @@ func main() {
 		panic(fmt.Errorf("Update failed: %v", retryErr))
 	}
 	fmt.Println("Switched production loadbalancer back to production deployment")
-
 
 	// Delete staging deployment and service
 	prompt("to delete staging deployment and service")

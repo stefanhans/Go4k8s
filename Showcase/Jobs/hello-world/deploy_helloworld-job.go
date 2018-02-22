@@ -30,7 +30,6 @@ func main() {
 	// Create Client for Jobs
 	jobsClient := clientset.BatchV1().Jobs(apiv1.NamespaceDefault)
 
-
 	// Define Job
 	job := &apibatchv1.Job{
 		ObjectMeta: metav1.ObjectMeta{
