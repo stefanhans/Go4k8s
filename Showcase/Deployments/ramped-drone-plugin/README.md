@@ -24,12 +24,11 @@ All images are simply presenting one webpage and the versions change mainly the 
 
 - Set the version and test (does the initial deployment)
 
-    "k8s.io/client-go/tools/clientcmd"
-    config, err := clientcmd.BuildConfigFromFlags("", "/home/stefan/.kube/config")
+    `export PLUGIN_VERSION=1.0.0`
+    `chmod +x update`
+    `./update`
 
-    export PLUGIN_VERSION=1.0.0
-    chmod +x update
-    ./update
+-
 
 - Copy all files according to the Dockerfile, i.e. config, ca.crt, client.crt, client.key
 
