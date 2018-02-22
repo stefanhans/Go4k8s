@@ -18,7 +18,7 @@ All images are simply presenting one webpage and the versions change mainly the 
 
 ### Prerequisites:
 
-Go, Docker, and a cluster environment, e.g. [minikube](https://github.com/kubernetes/minikube)
+Go, Docker, and Kubernetes, e.g. [minikube](https://github.com/kubernetes/minikube)
 
 Build your Go executable, e.g. `GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ./update`
 
