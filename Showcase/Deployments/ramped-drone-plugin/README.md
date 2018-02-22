@@ -1,13 +1,24 @@
 ### Work In Progress
 
-Using [test-webserver](https://github.com/stefanhans/Go4k8s/tree/master/Showcase/Images/test-webserver) as template
-
-
 <a href="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi" target="_blank"><img src="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi.png" /></a>
+
+This scenario is using or can use, respectively, the following images from docker hub:
+
+stefanhans/webserver:1.0.0 (green)
+stefanhans/webserver:1.0.1 (blue)
+stefanhans/webserver:1.0.2 (yellow)
+stefanhans/webserver:1.0.3 (red)
+stefanhans/webserver:1.0.4 (gray)
+
+All images are simply presenting one webpage and the versions change mainly the background color.
 
 ### Preparations:
 
-    cat Dockerfile
+- Prepare a cluster environment, e.g. [minikube](https://github.com/kubernetes/minikube)
+
+- Copy all files according to the Dockerfile, i.e. config, ca.crt, client.crt, client.key
+
+-
 
 Copy your files to
 
@@ -53,22 +64,5 @@ build image
 
 push image as needed
 
-create wrapper for deleting inactive job
 
-    cat >update.bash <<EOF
-    kubectl create -f update_job.yaml
-
-    while [ "$(kubectl get jobs update-job -o jsonpath='{.status.active}')" != "" ]
-    do
-        sleep 1
-        printf "."
-    done
-
-    kubectl delete -f update_job.yaml
-    EOF
-
-    chmod +x update.bash
-
-run wrapper
-
-    ./update.bash
+Using [test-webserver](https://github.com/stefanhans/Go4k8s/tree/master/Showcase/Images/test-webserver) as template
