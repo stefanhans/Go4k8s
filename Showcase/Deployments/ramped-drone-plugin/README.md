@@ -24,8 +24,10 @@ All images are simply presenting one webpage and the versions change mainly the 
 
 - Set the version and test (does the initial deployment)
 
-`export PLUGIN_VERSION=1.0.0
+    `export PLUGIN_VERSION=1.0.0
+
 chmod +x update
+
 ./update`
 
 -
