@@ -5,6 +5,8 @@ which will later be replaced by the value of the environment variable `PLUGIN_VE
 
 The executable starts deployment and service initially and updates them accordingly if the called later.
 
+This recording skip the initial part and will be replaced later.
+
 <a href="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi" target="_blank"><img src="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi.png" /></a>
 
 This scenario is using or can use, respectively, the following images from docker hub:
