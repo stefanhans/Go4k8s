@@ -23,6 +23,7 @@ import (
 	"k8s.io/client-go/rest"
 )
 
+// UpdateData
 type UpdateData struct {
 	ApiVersion string
 	Kind       string

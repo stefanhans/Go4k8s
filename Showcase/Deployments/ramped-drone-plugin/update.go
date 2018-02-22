@@ -21,6 +21,7 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+// UpdateData
 type UpdateData struct {
 	Version string
 }
