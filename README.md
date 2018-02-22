@@ -22,7 +22,3 @@ The [Examples directory](./Examples) serves as playground with the official exam
   godoc -http=:6060 -index -index_files index.file
   or
   godoc -index -index_files index.file -q ServiceInterface
-
-[//]: # (This may be the most platform independent comment)
-[//]: # ([![GoDoc](https://godoc.org/github.com/stefanhans/Go4k8s?status.svg)](https://godoc.org/github.com/stefanhans/Go4k8s))
-
