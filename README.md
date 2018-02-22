@@ -1,4 +1,8 @@
-# Go4k8s
+[![MIT License](https://img.shields.io/github/license/mashape/apistatus.svg?maxAge=2592000)](https://github.com/stefanhans/Go4k8s/blob/master/LICENSE)
+[![GoDoc](https://godoc.org/github.com/stefanhans/Go4k8s/tree/master/Showcase/Deployments/ramped?status.svg)](https://godoc.org/github.com/stefanhans/Go4k8s/tree/master/Showcase/Deployments/ramped)
+[![Go Report Card](https://goreportcard.com/badge/github.com/stefanhans/Go4k8s/tree/master/Showcase/Deployments/ramped)](https://goreportcard.com/report/github.com/Go4k8s/tree/master/Showcase/Deployments/ramped)
+
+# Go4k8s - Work in Progress
 
 The [Showcase directory](./Showcase) refers to the talk "[K8s API & Go Programming](http://go-talks.appspot.com/github.com/stefanhans/go-present/slides/Kubernetes/IntroductionIntoClient-Go.slide#1)".
 
