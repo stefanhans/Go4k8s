@@ -6,7 +6,8 @@
 
 Using [test-webserver](https://github.com/stefanhans/Go4k8s/tree/master/Showcase/Images/test-webserver) as template
 
-[![asciicast](https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi.png)](https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi?target=_blank)
+
+<a href="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi" target="_blank"><img src="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi.png" /></a>
 
 ### Preparations:
 
