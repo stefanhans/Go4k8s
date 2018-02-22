@@ -20,9 +20,19 @@ All images are simply presenting one webpage and the versions change mainly the 
 
 - Prepare a cluster environment, e.g. [minikube](https://github.com/kubernetes/minikube)
 
-- Copy all files according to the Dockerfile, i.e. config, ca.crt, client.crt, client.key
+- Build your Go executable, e.g. `GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ./update`
+
+- Set the version and test (does the initial deployment)
+
+    export PLUGIN_VERSION=1.0.0
+    chmod +x update
+    ./update
 
 -
+
+- Copy all files according to the Dockerfile, i.e. config, ca.crt, client.crt, client.key
+
+- Build
 
 Copy your files to
 
