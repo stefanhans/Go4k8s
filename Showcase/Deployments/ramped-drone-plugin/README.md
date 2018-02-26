@@ -41,7 +41,7 @@ Copy all files according to the Dockerfile, i.e. config, ca.crt, client.crt, cli
 
 Build the docker image, e.g. `docker build -t stefanhans/update-via-docker:1.0.1 .`
 
-Test the docker image, e.g. `docker run -e PLUGIN_VERSION="1.0.1" --rm --network="host" stefanhans/update-via-docker:1.0.1`
+Test the docker image, e.g. `docker run -e PLUGIN_VERSION="1.0.5" --rm --network="host" stefanhans/update-via-docker:1.0.1`
 
 ---
 
