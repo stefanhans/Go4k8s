@@ -7,7 +7,7 @@ The executable starts deployment and service initially and updates them accordin
 
 <a href="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi" target="_blank"><img src="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi.png" /></a>
 
-The recording skip the initial part and will be replaced later.
+Theinikube start recording skip the initial part and will be replaced later.
 
 This scenario is using or can use, respectively, the following images from docker hub:
 
@@ -47,9 +47,9 @@ Test the docker image, e.g. `docker run -e PLUGIN_VERSION="1.0.1" --rm --network
 
 Next steps:
 
-- Getting a running drone pipeline
+- Getting a running drone pipeline :thumbsup:
 
-- Check `--network="host"` regarding drone pipeline
+- Check `--network="host"` regarding drone pipeline :question:
 
 
 BTW: [source: stefanhans/webserver](https://github.com/stefanhans/Go4k8s/tree/master/Showcase/Images/test-webserver)
