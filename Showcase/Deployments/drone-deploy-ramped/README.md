@@ -5,10 +5,6 @@ which will later be replaced by the value of the environment variable `PLUGIN_VE
 
 The executable starts deployment and service initially and updates them accordingly if the called later.
 
-<a href="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi" target="_blank"><img src="https://asciinema.org/a/8C4FwMI74WkbPNaIeo4MUZHgi.png" /></a>
-
-The terminal recording skip the initial part and will be replaced later.
-
 This scenario is using or can use, respectively, the following images from docker hub:
 
 stefanhans/webserver:1.0.0 (green)
@@ -27,21 +23,20 @@ All images are simply presenting one webpage and the versions change mainly the 
 
 Go, Docker, and Kubernetes, e.g. [minikube](https://github.com/kubernetes/minikube)
 
-Build your Go executable, e.g. `GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ./update`
+Build your Go executable, e.g. `GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o ./deploy`
 
 Set the version and test (does the initial deployment)
 
     export PLUGIN_VERSION=1.0.0
-    chmod +x update
-    ./update
+    ./deploy
 
 Edit the deployment.yaml (or don't)
 
 Copy all files according to the Dockerfile, i.e. config, ca.crt, client.crt, client.key
 
-Build the docker image, e.g. `docker build -t stefanhans/update-via-docker:1.0.1 .`
+Build the docker image, e.g. `docker build -t stefanhans/drone-deploy-ramped:0.0.1 .`
 
-Test the docker image, e.g. `docker run -e PLUGIN_VERSION="1.0.5" --rm --network="host" stefanhans/update-via-docker:1.0.1`
+Test the docker image, e.g. `docker run -e PLUGIN_VERSION="1.0.5" --rm --network="host" stefanhans/drone-deploy-ramped:0.0.1`
 
 ---
 
